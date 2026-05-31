@@ -1383,10 +1383,19 @@
                 checkedIn: false // 新登記預設未簽到
             };
 
-            guests.push(newGuest);
-            saveState();
+            await api('createGuest', { guest: newGuest });
+            await loadGuestsFromSheet();
             showToast(`成功！感謝 ${name} 的回覆與登記`, 'success');
-            
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMUBRAeVyaF3Ky16BjmSY1c-zgruJEurPZPllPGVBF_vBlRPqrMvlONw2k2NMIyHmE/exec';
+
+async function api(action, payload = {}) {
+  const res = await fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action, ...payload })
+  });
+
+  return await res.json();
+}
             // 重置表單
             document.getElementById('rsvp-form').reset();
             document.querySelector('input[value="yes"]').checked = true;
