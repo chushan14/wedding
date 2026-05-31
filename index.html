@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12 hours closer - 婚禮一站式管理系統</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Cinzel', 'Noto Sans TC', 'serif'],
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        milktea: {
+                            50: '#FAF6F0',   // 溫潤燕麥奶色
+                            100: '#F3EDE2',  // 輕柔奶茶色
+                            200: '#E7DBCB',  // 經典奶茶
+                            300: '#D4BFAB',  // 焦糖沙灘色
+                            400: '#BC9F88',  // 溫暖卡其
+                        },
+                        coffee: {
+                            50: '#F5F2F0',
+                            100: '#E6DFDA',
+                            200: '#C8B9B0',
+                            500: '#8C6F56',  // 拿鐵咖啡色
+                            600: '#70533E',  // 濃郁咖啡色
+                            700: '#594130',  // 焦糖碳焙色
+                            800: '#423024',  // 深焙黑咖啡色
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .milktea-gradient {
+            background: linear-gradient(135deg, #FAF6F0 0%, #E7DBCB 100%);
+        }
+        .hero-gradient {
+            /* 採用優雅的暖調歐式婚禮長桌圖片，搭配咖啡色微光漸層濾鏡 */
+            background: linear-gradient(rgba(43, 34, 27, 0.45), rgba(66, 48, 36, 0.7)), url('https://images.unsplash.com/photo-1519225495810-7512c696505a?auto=format&fit=crop&q=80&w=2000') no-repeat center center;
+            background-size: cover;
+        }
+        .modal-active {
+            display: flex !important;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 font-sans text-stone-800 leading-normal tracking-wide">
+
+    <!-- 頂部導覽列 -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-milktea-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-serif text-xl sm:text-2xl font-bold text-coffee-700 tracking-widest">
+                        12 hours closer
+                    </span>
+                    <span class="ml-2 text-xs text-coffee-500 border border-milktea-300 rounded px-1.5 py-0.5 hidden sm:inline-block bg-milktea-50">
+                        一站式婚禮管理
+                    </span>
+                </div>
+                <!-- 導覽選單 -->
+                <div class="flex space-x-1 sm:space-x-4 items-center">
+                    <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn px-3 py-2 text-sm font-medium text-coffee-700 border-b-2 border-coffee-600 transition-all">
+                        <i class="fa-solid fa-chart-line mr-1"></i>儀表板
+                    </button>
+                    <button onclick="switchTab('rsvp')" id="btn-rsvp" class="tab-btn px-3 py-2 text-sm font-medium text-stone-500 hover:text-coffee-600 border-b-2 border-transparent transition-all">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i>出席登記
+                    </button>
+                    <button onclick="switchTab('seating')" id="btn-seating" class="tab-btn px-3 py-2 text-sm font-medium text-stone-500 hover:text-coffee-600 border-b-2 border-transparent transition-all">
+                        <i class="fa-solid fa-chair mr-1"></i>座位配置
+                    </button>
+                    <button onclick="switchTab('gift')" id="btn-gift" class="tab-btn px-3 py-2 text-sm font-medium text-stone-500 hover:text-coffee-600 border-b-2 border-transparent transition-all">
+                        <i class="fa-solid fa-envelope-open-text mr-1"></i>電子禮金簿
+                    </button>
+                    <button onclick="switchTab('parking')" id="btn-parking" class="tab-btn px-3 py-2 text-sm font-medium text-stone-500 hover:text-coffee-600 border-b-2 border-transparent transition-all">
+                        <i class="fa-solid fa-square-parking mr-1"></i>車牌折抵
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 封面 Hero Section -->
+    <header class="hero-gradient h-[250px] sm:h-[350px] flex flex-col justify-center items-center text-center text-white px-4">
+        <h1 class="font-serif text-3xl sm:text-5xl font-bold tracking-widest mb-2 drop-shadow-md">12 hours closer</h1>
+        <p class="text-sm sm:text-lg tracking-wider text-milktea-100 font-light mb-4 drop-shadow-sm">十二小時的距離，讓我們更走近彼此的永恆</p>
+        <div class="bg-white/10 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 text-xs sm:text-sm tracking-widest text-milktea-50">
+            <i class="fa-regular fa-calendar-check mr-2"></i>2027.03.07 11:30 AM 入席 ｜ 12:00 PM 開席 | 台北勞瑞斯牛肋排餐廳 Lawry's Taipei
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- 自訂提示訊息框 -->
+        <div id="toast" class="fixed bottom-5 right-5 bg-stone-900 text-white px-6 py-3 rounded-lg shadow-xl z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-2">
+            <span id="toast-icon" class="text-milktea-300"></span>
+            <span id="toast-msg" class="text-sm"></span>
+        </div>
+
+        <!-- ==================== 1. 儀表板分頁 (Dashboard) ==================== -->
+        <section id="tab-dashboard" class="tab-content block space-y-6">
+            <!-- 第一排：出席與入座進度 (3欄版面) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 預計出席總人數 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex items-center space-x-4">
+                    <div class="p-4 bg-milktea-50 rounded-xl text-coffee-600 border border-milktea-200">
+                        <i class="fa-solid fa-users text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-stone-400 font-medium">預計出席總人數</p>
+                        <h3 class="text-2xl font-bold text-coffee-800 mt-1" id="stat-attendance-total">0 <span class="text-sm font-normal text-stone-500">人</span></h3>
+                    </div>
+                </div>
+                <!-- 已排座位數 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex items-center space-x-4">
+                    <div class="p-4 bg-coffee-50 rounded-xl text-coffee-500 border border-coffee-100">
+                        <i class="fa-solid fa-chair text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-stone-400 font-medium">座位已入座席次</p>
+                        <h3 class="text-2xl font-bold text-stone-800 mt-1" id="stat-seating-progress">0/0 <span class="text-xs font-normal text-stone-400">人</span></h3>
+                    </div>
+                </div>
+                <!-- 入座進度百分比 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col justify-center">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-stone-400 font-medium">座位指派進度</span>
+                        <span class="text-lg font-bold text-coffee-600" id="stat-seating-percent">0%</span>
+                    </div>
+                    <!-- 擬真進度條 -->
+                    <div class="w-full bg-stone-100 rounded-full h-2.5 overflow-hidden">
+                        <div id="stat-seating-bar" class="bg-gradient-to-r from-milktea-300 to-coffee-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二排：主餐與禮金統計 (2欄寬版) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 經典主餐預算與素食 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex items-center space-x-4">
+                    <div class="p-4 bg-milktea-50 rounded-xl text-coffee-700 flex-shrink-0 border border-milktea-200">
+                        <i class="fa-solid fa-utensils text-2xl"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-stone-400 font-medium mb-1">主餐需求總攬與預算統計</p>
+                        <h3 class="text-sm font-semibold text-coffee-700 leading-relaxed truncate" id="stat-meal-summary">
+                            牛: 0 / 羊: 0 / 魚: 0 / 素: 0 / 兒: 0
+                        </h3>
+                    </div>
+                </div>
+                <!-- 禮金統計 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex items-center space-x-4">
+                    <div class="p-4 bg-milktea-100 rounded-xl text-coffee-600 border border-milktea-200">
+                        <i class="fa-solid fa-coins text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-stone-400 font-medium">禮金累計總額</p>
+                        <h3 class="text-2xl font-bold text-coffee-700 mt-1" id="stat-gift-total">$0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第三排：出席與餐點快速預覽 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 出席者列表 -->
+                <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-milktea-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-bold text-coffee-800"><i class="fa-solid fa-address-book text-coffee-500 mr-2"></i>最新出席登記</h2>
+                        <button onclick="switchTab('rsvp')" class="text-xs text-coffee-600 hover:underline font-semibold">新增登記 <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-stone-100 text-sm text-left">
+                            <thead class="bg-milktea-50 text-coffee-700 text-xs uppercase">
+                                <tr>
+                                    <th class="px-4 py-3">賓客姓名</th>
+                                    <th class="px-4 py-3">出席狀態</th>
+                                    <th class="px-4 py-3">人數 / 交通</th>
+                                    <th class="px-4 py-3">餐點與要求細節</th>
+                                    <th class="px-4 py-3">關係</th>
+                                    <th class="px-4 py-3">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rsvp-summary-table" class="divide-y divide-stone-100">
+                                <!-- 動態填入 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 備註與祝福牆 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-milktea-100 p-6 flex flex-col h-[400px]">
+                    <h2 class="text-lg font-bold text-coffee-800 mb-4"><i class="fa-solid fa-heart text-coffee-500 mr-2"></i>賓客溫馨祝福</h2>
+                    <div id="wishes-wall" class="flex-1 overflow-y-auto space-y-3 pr-2">
+                        <!-- 動態填入 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 2. 出席與餐點表單分頁 (RSVP Form) ==================== -->
+        <section id="tab-rsvp" class="tab-content hidden">
+            <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-md border border-milktea-100 overflow-hidden">
+                <div class="milktea-gradient p-8 text-center border-b border-milktea-200">
+                    <span class="text-coffee-600 text-xs uppercase tracking-widest font-semibold block mb-2">RSVP FORM</span>
+                    <h2 class="font-serif text-2xl font-bold text-coffee-800">出席意願與餐點統計表</h2>
+                    <p class="text-coffee-600 text-xs mt-2">請於 2027 年 1 月 31 日前完成填寫，以利我們安排 Lawry's 盛宴</p>
+                </div>
+                
+                <form id="rsvp-form" onsubmit="handleRSVPSubmit(event)" class="p-8 space-y-6">
+                    <!-- 基本資料 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-stone-600 mb-1" for="guest-name">主要賓客姓名 <span class="text-coffee-500">*</span></label>
+                            <input type="text" id="guest-name" required class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all" placeholder="請輸入您的姓名">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-stone-600 mb-1" for="guest-phone">聯絡電話 <span class="text-coffee-500">*</span></label>
+                            <input type="tel" id="guest-phone" required class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all" placeholder="例如：0912345678">
+                        </div>
+                    </div>
+
+                    <!-- 賓客關係 -->
+                    <div>
+                        <label class="block text-sm font-medium text-stone-600 mb-2">與新人的關係 <span class="text-coffee-500">*</span></label>
+                        <div class="grid grid-cols-4 gap-3">
+                            <label class="flex items-center justify-center border border-milktea-200 rounded-lg py-2 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
+                                <input type="radio" name="relation" value="男方親友" required class="sr-only peer">
+                                <span class="peer-checked:text-coffee-700 peer-checked:font-bold">男方親友</span>
+                            </label>
+                            <label class="flex items-center justify-center border border-milktea-200 rounded-lg py-2 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
+                                <input type="radio" name="relation" value="女方親友" class="sr-only peer">
+                                <span class="peer-checked:text-coffee-700 peer-checked:font-bold">女方親友</span>
+                            </label>
+                            <label class="flex items-center justify-center border border-milktea-200 rounded-lg py-2 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
+                                <input type="radio" name="relation" value="男方共同好友" class="sr-only peer">
+                                <span class="peer-checked:text-coffee-700 peer-checked:font-bold">男方好友</span>
+                            </label>
+                            <label class="flex items-center justify-center border border-milktea-200 rounded-lg py-2 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
+                                <input type="radio" name="relation" value="女方共同好友" class="sr-only peer">
+                                <span class="peer-checked:text-coffee-700 peer-checked:font-bold">女方好友</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 出席意願 -->
+                    <div>
+                        <label class="block text-sm font-medium text-stone-600 mb-2">是否出席盛宴 <span class="text-coffee-500">*</span></label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <label class="flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
+                                <input type="radio" name="attendance" value="yes" checked onchange="toggleAttendanceFields(true)" class="sr-only peer">
+                                <i class="fa-regular fa-face-smile text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
+                                <span class="text-sm font-medium">受邀出席</span>
+                            </label>
+                            <label class="flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
+                                <input type="radio" name="attendance" value="gift-only" onchange="toggleAttendanceFields(false)" class="sr-only peer">
+                                <i class="fa-solid fa-gift text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
+                                <span class="text-sm font-medium text-center">禮到人不到</span>
+                            </label>
+                            <label class="flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
+                                <input type="radio" name="attendance" value="no" onchange="toggleAttendanceFields(false)" class="sr-only peer">
+                                <i class="fa-regular fa-face-frown text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
+                                <span class="text-sm font-medium">不克出席</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 出席人數與餐點配置 (若不出席則隱藏) -->
+                    <div id="attendance-details-group" class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-stone-600 mb-1" for="guest-count">出席總人數 <span class="text-coffee-500">*</span></label>
+                                <select id="guest-count" onchange="generateMealInputs()" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all bg-white">
+                                    <option value="1">1 人</option>
+                                    <option value="2">2 人</option>
+                                    <option value="3">3 人</option>
+                                    <option value="4">4 人</option>
+                                    <option value="5">5 人以上</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-stone-600 mb-1" for="baby-chair-count">嬰兒座椅需求</label>
+                                <select id="baby-chair-count" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all bg-white">
+                                    <option value="0">不需要</option>
+                                    <option value="1">1 張</option>
+                                    <option value="2">2 張</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 依據人數動態生成餐點與特殊要求選擇 -->
+                        <div class="bg-milktea-50/50 p-6 rounded-xl space-y-6 border border-milktea-100">
+                            <span class="text-sm font-semibold text-coffee-800 block border-b border-milktea-200 pb-2"><i class="fa-solid fa-utensils text-coffee-500 mr-2"></i>每位賓客主餐與特殊需求設定</span>
+                            <div id="meal-inputs-container" class="space-y-6">
+                                <!-- JS 動態產生的餐點選擇欄位 -->
+                            </div>
+                        </div>
+
+                        <!-- 交通與車牌登記 -->
+                        <div class="bg-milktea-100/30 p-6 rounded-xl border border-milktea-200/60 space-y-4">
+                            <span class="text-sm font-semibold text-coffee-800 block border-b border-milktea-200 pb-2">
+                                <i class="fa-solid fa-car text-coffee-500 mr-2"></i>交通規劃與車位折抵
+                            </span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-stone-600 mb-1">是否自行開車？ <span class="text-coffee-500">*</span></label>
+                                    <div class="flex space-x-4 mt-1">
+                                        <label class="flex items-center text-sm text-stone-700 cursor-pointer">
+                                            <input type="radio" name="self-drive" value="yes" onchange="toggleCarPlateInput(true)" class="mr-2 text-coffee-500 focus:ring-coffee-400"> 是，開車前往
+                                        </label>
+                                        <label class="flex items-center text-sm text-stone-700 cursor-pointer">
+                                            <input type="radio" name="self-drive" value="no" checked onchange="toggleCarPlateInput(false)" class="mr-2 text-coffee-500 focus:ring-coffee-400"> 否，搭乘大眾交通
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="car-plate-wrapper" class="hidden transition-all duration-300">
+                                    <label class="block text-sm font-medium text-stone-600 mb-1" for="car-plate">車牌號碼登記 <span class="text-coffee-500">*</span></label>
+                                    <input type="text" id="car-plate" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all" placeholder="例如：ABC-1234 (供車位統一折抵)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 給新人的悄悄話 -->
+                    <div>
+                        <label class="block text-sm font-medium text-stone-600 mb-1" for="guest-wish">給新人的悄悄話 / 祝福</label>
+                        <textarea id="guest-wish" rows="3" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all" placeholder="在此留下您對我們的祝福..."></textarea>
+                    </div>
+
+                    <!-- 提交按鈕 -->
+                    <button type="submit" class="w-full bg-coffee-600 hover:bg-coffee-700 text-white font-medium py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-heart-circle-check"></i>
+                        <span>送出出席登記表</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==================== 3. 互動座位配置分頁 (Interactive Seating Map) ==================== -->
+        <section id="tab-seating" class="tab-content hidden space-y-6">
+            <div class="flex flex-col lg:flex-row gap-6">
+                
+                <!-- 左側：待分座賓客清單 -->
+                <div class="w-full lg:w-1/4 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col h-[600px]">
+                    <div class="mb-4">
+                        <h3 class="text-base font-bold text-stone-800"><i class="fa-solid fa-user-tag text-coffee-500 mr-2"></i>待分配賓客</h3>
+                        <p class="text-xs text-stone-400 mt-1">點擊賓客名稱再選擇桌號，或直接拖曳分配</p>
+                    </div>
+                    <!-- 搜尋賓客 -->
+                    <input type="text" id="seating-search" oninput="filterSeatingGuests()" placeholder="搜尋賓客姓名..." class="w-full px-3 py-1.5 mb-4 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none">
+                    
+                    <div id="unassigned-guests" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                        <!-- 動態填入待分配名單 -->
+                    </div>
+                </div>
+
+                <!-- 右側：座位地圖 -->
+                <div class="w-full lg:w-3/4 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col">
+                    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-stone-800"><i class="fa-solid fa-map text-coffee-500 mr-2"></i>主會場座位平面圖 (長桌席位)</h3>
+                            <p class="text-xs text-stone-400 mt-1">點擊長桌可自訂桌名、座位上限與查看詳細主餐禁忌</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="addNewTable()" class="bg-milktea-50 text-coffee-600 hover:bg-milktea-100 text-xs font-semibold py-2 px-3 rounded-lg transition-all border border-milktea-200">
+                                <i class="fa-solid fa-plus mr-1"></i>新增長桌
+                            </button>
+                            <button onclick="autoAssignSeats()" class="bg-stone-100 text-stone-700 hover:bg-stone-200 text-xs font-semibold py-2 px-3 rounded-lg transition-all">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>一鍵自動排座
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 舞台區 -->
+                    <div class="w-full py-3 bg-milktea-100 text-coffee-800 font-bold text-sm tracking-widest text-center rounded-lg border border-milktea-200 mb-10 shadow-inner">
+                        主 舞 台 (STAGE)
+                    </div>
+
+                    <!-- 長桌擺放網格 -->
+                    <div id="table-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+                        <!-- 動態載入長桌 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 4. 電子禮金簿分頁 (Gift Ledger) ==================== -->
+        <section id="tab-gift" class="tab-content hidden space-y-6">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- 左側：新增禮金登記 -->
+                <div class="w-full lg:w-1/3 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100">
+                    <h3 class="text-lg font-bold text-stone-800 mb-4"><i class="fa-solid fa-file-invoice-dollar text-coffee-500 mr-2"></i>現場禮金登記</h3>
+                    <form id="gift-form" onsubmit="handleGiftSubmit(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 mb-1" for="gift-giver">送禮賓客姓名</label>
+                            <!-- 加上搜尋與快速選取功能 -->
+                            <div class="relative">
+                                <input type="text" id="gift-giver" required oninput="suggestGiftGivers()" class="w-full px-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none" placeholder="輸入姓名或搜尋已登記賓客">
+                                <div id="giver-suggestions" class="absolute left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-milktea-200 rounded-lg shadow-lg z-10 hidden text-sm">
+                                    <!-- 動態建議名單 -->
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 mb-1" for="gift-amount">禮金金額 (TWD)</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1.5 text-stone-400 font-semibold">$</span>
+                                <input type="number" id="gift-amount" required min="0" step="100" class="w-full pl-8 pr-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none" placeholder="例如：3600">
+                            </div>
+                            <!-- 快速禮金按鈕 -->
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                                <button type="button" onclick="setGiftAmount(1200)" class="text-xs bg-stone-50 hover:bg-milktea-50 border border-stone-200 hover:border-milktea-200 rounded-md px-2 py-1 text-stone-600">1200</button>
+                                <button type="button" onclick="setGiftAmount(2000)" class="text-xs bg-stone-50 hover:bg-milktea-50 border border-stone-200 hover:border-milktea-200 rounded-md px-2 py-1 text-stone-600">2000</button>
+                                <button type="button" onclick="setGiftAmount(2600)" class="text-xs bg-stone-50 hover:bg-milktea-50 border border-stone-200 hover:border-milktea-200 rounded-md px-2 py-1 text-stone-600">2600</button>
+                                <button type="button" onclick="setGiftAmount(3200)" class="text-xs bg-stone-50 hover:bg-milktea-50 border border-stone-200 hover:border-milktea-200 rounded-md px-2 py-1 text-stone-600">3200</button>
+                                <button type="button" onclick="setGiftAmount(3600)" class="text-xs bg-stone-50 hover:bg-milktea-50 border border-stone-200 hover:border-milktea-200 rounded-md px-2 py-1 text-stone-600">3600</button>
+                                <button type="button" onclick="setGiftAmount(6600)" class="text-xs bg-stone-50 hover:bg-milktea-50 border border-stone-200 hover:border-milktea-200 rounded-md px-2 py-1 text-stone-600">6600</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 mb-1" for="gift-note">備註</label>
+                            <input type="text" id="gift-note" class="w-full px-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none" placeholder="例如：公務忙碌代包、附卡片、伴手禮發放">
+                        </div>
+                        <button type="submit" class="w-full bg-coffee-500 hover:bg-coffee-600 text-white font-medium py-2.5 px-4 rounded-lg shadow-sm hover:shadow transition-all text-sm">
+                            <i class="fa-solid fa-plus-circle mr-1"></i>登錄禮金
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 右側：禮金明細、搜尋與統計 -->
+                <div class="w-full lg:w-2/3 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col h-[550px]">
+                    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-stone-800"><i class="fa-solid fa-list-check text-stone-700 mr-2"></i>禮金登記帳目簿</h3>
+                            <p class="text-xs text-stone-400 mt-1" id="gift-list-stat">目前累計：0 筆登記</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <input type="text" id="gift-search" oninput="renderGiftLedger()" placeholder="搜尋送禮人姓名..." class="px-3 py-1.5 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none">
+                            <button onclick="exportGiftLedger()" class="bg-milktea-50 text-coffee-600 hover:bg-milktea-100 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all flex items-center border border-milktea-200">
+                                <i class="fa-solid fa-download mr-1"></i>匯出 CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 禮金細項列表 -->
+                    <div class="flex-1 overflow-y-auto border border-stone-100 rounded-xl">
+                        <table class="min-w-full divide-y divide-stone-100 text-sm text-left">
+                            <thead class="bg-milktea-50 text-coffee-700 text-xs uppercase sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-3">序號</th>
+                                    <th class="px-4 py-3">送禮賓客</th>
+                                    <th class="px-4 py-3 text-right">禮金金額</th>
+                                    <th class="px-4 py-3">備註細節</th>
+                                    <th class="px-4 py-3 text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gift-table-body" class="divide-y divide-stone-100">
+                                <!-- 動態填入 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 5. 車位折抵登記分頁 (Parking Registry) ==================== -->
+        <section id="tab-parking" class="tab-content hidden space-y-6">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- 左側：現場自助車牌登記 Kiosk -->
+                <div class="w-full lg:w-1/3 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100">
+                    <div class="text-center pb-4 border-b border-stone-100 mb-6">
+                        <span class="text-coffee-600 text-xs uppercase tracking-widest font-semibold block mb-1">TODAY'S PARKING</span>
+                        <h3 class="text-lg font-bold text-stone-800"><i class="fa-solid fa-car-rear text-coffee-500 mr-2"></i>現場車牌自助折抵</h3>
+                        <p class="text-xs text-stone-400 mt-1.5 leading-relaxed">
+                            開車前來的親友，請在此輸入您的「姓名」與「完整車牌號碼」，我們將統一批次全額折抵。
+                        </p>
+                    </div>
+                    <form id="parking-self-form" onsubmit="handleParkingSelfSubmit(event)" class="space-y-5">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 mb-1" for="parking-guest-name">登記人/賓客姓名</label>
+                            <div class="relative">
+                                <input type="text" id="parking-guest-name" required oninput="suggestParkingGuests()" class="w-full px-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none" placeholder="請輸入姓名（會與喜帖名單智慧比對）">
+                                <div id="parking-guest-suggestions" class="absolute left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-milktea-200 rounded-lg shadow-lg z-20 hidden text-sm">
+                                    <!-- 動態比對建議名單 -->
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 mb-1" for="parking-plate">車牌號碼 (英數字)</label>
+                            <input type="text" id="parking-plate" required class="w-full px-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none uppercase font-mono tracking-widest" placeholder="例如：ABC-1234">
+                        </div>
+                        <button type="submit" class="w-full bg-coffee-600 hover:bg-coffee-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-sm hover:shadow transition-all text-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-square-check"></i>
+                            <span>確認送出登記</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 右側：主辦人車牌清單與匯出 -->
+                <div class="w-full lg:w-2/3 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col h-[550px]">
+                    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-stone-800"><i class="fa-solid fa-parking text-coffee-500 mr-2"></i>當日車位折抵清單</h3>
+                            <p class="text-xs text-stone-400 mt-1" id="parking-list-stat">已登記：0 輛車</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <input type="text" id="parking-search" oninput="renderParkingLedger()" placeholder="搜尋姓名或車牌..." class="px-3 py-1.5 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none">
+                            <button onclick="exportParkingLedger()" class="bg-coffee-600 hover:bg-coffee-700 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-all flex items-center shadow-sm">
+                                <i class="fa-solid fa-file-csv mr-1.5"></i>匯出飯店折抵 CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 折抵詳細表格 -->
+                    <div class="flex-1 overflow-y-auto border border-stone-100 rounded-xl">
+                        <table class="min-w-full divide-y divide-stone-100 text-sm text-left">
+                            <thead class="bg-milktea-50 text-coffee-700 text-xs uppercase sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-3">序號</th>
+                                    <th class="px-4 py-3">賓客姓名</th>
+                                    <th class="px-4 py-3">賓客關係</th>
+                                    <th class="px-4 py-3 font-mono">車牌號碼</th>
+                                    <th class="px-4 py-3 text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="parking-table-body" class="divide-y divide-stone-100">
+                                <!-- 動態填入 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== 彈出視窗：單桌詳細名單與座位指派編輯 ==================== -->
+    <div id="table-edit-modal" class="fixed inset-0 bg-stone-950/40 backdrop-blur-sm z-50 justify-center items-center hidden">
+        <div class="bg-white rounded-2xl w-full max-w-lg p-6 mx-4 shadow-2xl border border-milktea-100 flex flex-col max-h-[90vh]">
+            <!-- 視窗標題 -->
+            <div class="flex justify-between items-start mb-4 border-b border-stone-100 pb-3">
+                <div class="flex-1 mr-4">
+                    <label class="block text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">編輯桌名</label>
+                    <input type="text" id="modal-table-name" class="text-lg font-bold text-coffee-800 border-b border-dashed border-milktea-300 hover:border-coffee-500 focus:border-coffee-500 focus:outline-none focus:ring-0 w-full mb-3" value="A1 桌">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-1">長桌座位數上限</label>
+                            <input type="number" id="modal-table-capacity-input" min="1" max="30" class="w-full px-2 py-1 text-sm border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 focus:border-coffee-500 outline-none">
+                        </div>
+                        <div class="flex flex-col justify-end">
+                            <p class="text-xs text-stone-500 font-medium pb-1.5" id="modal-table-capacity">目前入座人數：0 / 10</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeTableModal()" class="text-stone-400 hover:text-stone-600"><i class="fa-solid fa-times text-xl"></i></button>
+            </div>
+
+            <!-- 主體內容 -->
+            <div class="flex-1 overflow-y-auto space-y-4 pr-1">
+                <!-- 目前該桌名單 -->
+                <div>
+                    <h4 class="text-sm font-semibold text-stone-700 mb-2"><i class="fa-solid fa-users-viewfinder text-coffee-500 mr-1"></i>已安排席次 (含主餐餐點與禁忌明細)</h4>
+                    <div id="modal-table-guests" class="space-y-3">
+                        <!-- 動態載入入座賓客與客製化餐點標籤 -->
+                    </div>
+                </div>
+
+                <hr class="border-stone-100">
+
+                <!-- 快速指派新賓客到此桌 -->
+                <div>
+                    <h4 class="text-sm font-semibold text-stone-700 mb-2"><i class="fa-solid fa-plus-circle text-coffee-500 mr-1"></i>快速指派剩餘賓客</h4>
+                    <select id="modal-assign-select" onchange="assignGuestToCurrentTable()" class="w-full px-3 py-2 text-sm border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 outline-none bg-white">
+                        <option value="">-- 選擇要加入此桌的賓客 --</option>
+                        <!-- 動態填入未排座賓客 -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- 視窗底部按鈕 -->
+            <div class="mt-6 flex space-x-3 border-t border-stone-100 pt-3 justify-end">
+                <button onclick="deleteCurrentTable()" class="bg-milktea-50 text-coffee-600 hover:bg-milktea-100 text-xs font-semibold py-2 px-4 rounded-lg transition-all border border-milktea-200">
+                    <i class="fa-regular fa-trash-can mr-1"></i>拆除此桌
+                </button>
+                <button onclick="saveTableModalEdit()" class="bg-coffee-600 hover:bg-coffee-700 text-white text-xs font-semibold py-2 px-6 rounded-lg transition-all shadow-sm">
+                    確認更新設定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 網頁核心控制 JS ==================== -->
+    <script>
+        // ------------------ 預設模擬資料 ------------------
+        let guests = [
+            { 
+                id: "1", 
+                name: "王大明", 
+                phone: "0912111222", 
+                relation: "男方親友", 
+                attendance: "yes", 
+                count: 2, 
+                meals: [
+                    { main: "ribeye", doneness: "5分熟", drinkSwap: true, allergies: ["不吃海鮮"] },
+                    { main: "kid", doneness: "", drinkSwap: true, allergies: ["其他:巧克力過敏"] }
+                ], 
+                babyChairs: 1, 
+                selfDrive: "yes", 
+                carPlate: "ABC-1234",
+                wish: "恭喜新婚！期待與你們共度溫馨美好的時光！", 
+                tableId: "table-1" 
+            },
+            { 
+                id: "2", 
+                name: "林小華", 
+                phone: "0923222333", 
+                relation: "女方親友", 
+                attendance: "yes", 
+                count: 2, 
+                meals: [
+                    { main: "seafood", doneness: "", drinkSwap: false, allergies: ["無特別限制"] },
+                    { main: "veg", doneness: "", drinkSwap: false, allergies: ["全素"] }
+                ], 
+                babyChairs: 0, 
+                selfDrive: "no", 
+                carPlate: "",
+                wish: "最美的婚禮！恭喜你們！", 
+                tableId: "table-1" 
+            },
+            { 
+                id: "3", 
+                name: "張志豪", 
+                phone: "0934333444", 
+                relation: "男方共同好友", 
+                attendance: "yes", 
+                count: 1, 
+                meals: [
+                    { main: "lamb", doneness: "", drinkSwap: false, allergies: ["不吃牛"] }
+                ], 
+                babyChairs: 0, 
+                selfDrive: "yes", 
+                carPlate: "W-5566",
+                wish: "兄弟恭喜了，成家立業！", 
+                tableId: "table-2" 
+            },
+            { 
+                id: "4", 
+                name: "陳雅婷", 
+                phone: "0945444555", 
+                relation: "女方共同好友", 
+                attendance: "yes", 
+                count: 1, 
+                meals: [
+                    { main: "veg", doneness: "", drinkSwap: true, allergies: ["全素"] }
+                ], 
+                babyChairs: 0, 
+                selfDrive: "no", 
+                carPlate: "",
+                wish: "永遠幸福美麗！", 
+                tableId: "table-2" 
+            }
+        ];
+
+        let tables = [
+            { id: "table-1", name: "男方親友主長桌 A", capacity: 6 },
+            { id: "table-2", name: "女方閨蜜長桌 B", capacity: 8 },
+            { id: "table-3", name: "男方公司主管長桌 C", capacity: 10 },
+            { id: "table-4", name: "女方大學長桌 D", capacity: 12 },
+        ];
+
+        let gifts = [
+            { id: "g1", giver: "王大明", amount: 3600, note: "已到場，男方親戚" },
+            { id: "g2", giver: "林小華", amount: 2600, note: "已到場，女方朋友" },
+            { id: "g3", giver: "張志豪", amount: 3200, note: "已到場，男方同梯" }
+        ];
+
+        let activeTableId = ""; // 目前正在彈出視窗中編輯的桌號
+
+        // ------------------ 初始化載入 ------------------
+        window.addEventListener('DOMContentLoaded', () => {
+            generateMealInputs(); // 初始化 RSVP 表單首位餐點
+            updateDashboard();    // 更新儀表板統計
+            renderTableGrid();    // 渲染座位配置圖
+            renderUnassignedGuests(); // 渲染待排座名單
+            renderGiftLedger();   // 渲染禮金簿
+            renderParkingLedger(); // 渲染車牌登記名單
+        });
+
+        // ------------------ 分頁切換 ------------------
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+                tab.classList.remove('block');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('text-coffee-700', 'border-coffee-600');
+                btn.classList.add('text-stone-500', 'border-transparent');
+            });
+
+            const targetTab = document.getElementById(`tab-${tabName}`);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+                targetTab.classList.add('block');
+            }
+
+            const targetBtn = document.getElementById(`btn-${tabName}`);
+            if (targetBtn) {
+                targetBtn.classList.remove('text-stone-500', 'border-transparent');
+                targetBtn.classList.add('text-coffee-700', 'border-coffee-600');
+            }
+
+            if (tabName === 'dashboard') {
+                updateDashboard();
+            } else if (tabName === 'seating') {
+                renderTableGrid();
+                renderUnassignedGuests();
+            } else if (tabName === 'gift') {
+                renderGiftLedger();
+            } else if (tabName === 'parking') {
+                renderParkingLedger();
+            }
+        }
+
+        // ------------------ 自訂 Toast 提示 ------------------
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const msg = document.getElementById('toast-msg');
+
+            msg.textContent = message;
+            if (type === 'success') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500"></i>';
+            } else if (type === 'error') {
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-rose-500"></i>';
+            } else {
+                icon.innerHTML = '<i class="fa-solid fa-info-circle text-coffee-500"></i>';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // ------------------ 交通車號顯示連動 ------------------
+        function toggleCarPlateInput(isVisible) {
+            const wrapper = document.getElementById('car-plate-wrapper');
+            const input = document.getElementById('car-plate');
+            if (isVisible) {
+                wrapper.classList.remove('hidden');
+                input.required = true;
+            } else {
+                wrapper.classList.add('hidden');
+                input.value = '';
+                input.required = false;
+            }
+        }
+
+        // ------------------ 儀表板計算 ------------------
+        function updateDashboard() {
+            const attendingGuests = guests.filter(g => g.attendance === 'yes');
+            
+            // 計算出席人數
+            const totalAttendance = attendingGuests.reduce((sum, g) => sum + parseInt(g.count), 0);
+            document.getElementById('stat-attendance-total').innerHTML = `${totalAttendance} <span class="text-sm font-normal text-stone-500">人</span>`;
+
+            // 計算精緻主餐餐點分佈
+            let ribeyeCount = 0;
+            let lambCount = 0;
+            let seafoodCount = 0;
+            let vegCount = 0;
+            let kidCount = 0;
+
+            attendingGuests.forEach(g => {
+                if (g.meals && Array.isArray(g.meals)) {
+                    g.meals.forEach(meal => {
+                        if (meal.main === 'ribeye') ribeyeCount++;
+                        else if (meal.main === 'lamb') lambCount++;
+                        else if (meal.main === 'seafood') seafoodCount++;
+                        else if (meal.main === 'veg') vegCount++;
+                        else if (meal.main === 'kid') kidCount++;
+                    });
+                }
+            });
+            document.getElementById('stat-meal-summary').innerHTML = `
+                <span class="inline-block mr-3">🥩牛排: <strong class="text-coffee-800 text-base">${ribeyeCount}</strong></span>
+                <span class="inline-block mr-3">🐑羊排: <strong class="text-coffee-800 text-base">${lambCount}</strong></span>
+                <span class="inline-block mr-3">🐟鮮魚: <strong class="text-coffee-800 text-base">${seafoodCount}</strong></span>
+                <span class="inline-block mr-3">🥗素食: <strong class="text-coffee-800 text-base">${vegCount}</strong></span>
+                <span class="inline-block">👶兒童: <strong class="text-coffee-800 text-base">${kidCount}</strong></span>
+            `;
+
+            // 計算禮金
+            const totalGifts = gifts.reduce((sum, g) => sum + parseInt(g.amount), 0);
+            document.getElementById('stat-gift-total').innerText = `$${totalGifts.toLocaleString()}`;
+
+            // 座位排定進度與百分比
+            const assignedCount = attendingGuests.filter(g => g.tableId && g.tableId !== "").reduce((sum, g) => sum + parseInt(g.count), 0);
+            document.getElementById('stat-seating-progress').innerHTML = `${assignedCount} / ${totalAttendance} <span class="text-sm font-normal text-stone-500">人</span>`;
+            
+            const seatingPercent = totalAttendance > 0 ? Math.round((assignedCount / totalAttendance) * 100) : 0;
+            document.getElementById('stat-seating-percent').innerText = `${seatingPercent}%`;
+            document.getElementById('stat-seating-bar').style.width = `${seatingPercent}%`;
+
+            // 最新出席登記表單渲染 (最新4筆)
+            const summaryTable = document.getElementById('rsvp-summary-table');
+            summaryTable.innerHTML = '';
+            
+            const recentGuests = [...guests].reverse().slice(0, 4);
+            recentGuests.forEach(g => {
+                let statusBadge = '';
+                if (g.attendance === 'yes') {
+                    statusBadge = `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs rounded-full">受邀出席</span>`;
+                } else if (g.attendance === 'gift-only') {
+                    statusBadge = `<span class="px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full">禮到人不到</span>`;
+                } else {
+                    statusBadge = `<span class="px-2 py-0.5 bg-stone-100 text-stone-500 text-xs rounded-full">不克出席</span>`;
+                }
+
+                // 組合詳細餐點顯示文字
+                let mealDetailsText = "-";
+                if (g.attendance === 'yes' && g.meals) {
+                    mealDetailsText = g.meals.map((m, idx) => {
+                        let mainChinese = "";
+                        if (m.main === 'ribeye') mainChinese = `牛肋排(${m.doneness})`;
+                        else if (m.main === 'lamb') mainChinese = "小羔羊排";
+                        else if (m.main === 'seafood') mainChinese = "海鮮拼盤";
+                        else if (m.main === 'veg') mainChinese = "素食套餐";
+                        else if (m.main === 'kid') mainChinese = "兒童餐";
+
+                        const drinkText = m.drinkSwap ? "[換果汁]" : "";
+                        const allergyText = (m.allergies && m.allergies.length > 0) ? `(${m.allergies.join('/')})` : "";
+                        return `人${idx+1}: ${mainChinese}${drinkText}${allergyText}`;
+                    }).join('<br>');
+                }
+
+                const transportText = g.selfDrive === "yes" ? `開車 (${g.carPlate || '未填'})` : "大眾運輸";
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-stone-50 text-xs";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-semibold text-stone-700">${escapeHtml(g.name)}</td>
+                    <td class="px-4 py-3">${statusBadge}</td>
+                    <td class="px-4 py-3 font-medium">
+                        <div>${g.count} 人</div>
+                        <div class="text-[10px] text-stone-400 mt-0.5"><i class="fa-solid fa-car mr-1 text-coffee-300"></i>${transportText}</div>
+                    </td>
+                    <td class="px-4 py-3 text-stone-600 leading-relaxed">${mealDetailsText}</td>
+                    <td class="px-4 py-3 text-stone-500">${g.relation}</td>
+                    <td class="px-4 py-3">
+                        <button onclick="deleteGuest('${g.id}')" class="text-coffee-600 hover:text-coffee-800 text-xs"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                `;
+                summaryTable.appendChild(tr);
+            });
+
+            // 渲染祝福牆
+            const wishesWall = document.getElementById('wishes-wall');
+            wishesWall.innerHTML = '';
+            const wishingGuests = guests.filter(g => g.wish && g.wish.trim() !== "").reverse();
+            
+            if (wishingGuests.length === 0) {
+                wishesWall.innerHTML = `<div class="text-stone-300 text-center py-10 text-xs">尚無留言，趕緊去登記吧！</div>`;
+            } else {
+                wishingGuests.forEach(g => {
+                    const wishCard = document.createElement('div');
+                    wishCard.className = "bg-milktea-50/70 p-3 rounded-lg border border-milktea-200 text-xs";
+                    wishCard.innerHTML = `
+                        <p class="text-stone-700 italic">" ${escapeHtml(g.wish)} "</p>
+                        <div class="text-right text-stone-400 mt-1.5 font-semibold">— ${escapeHtml(g.name)} (${g.relation})</div>
+                    `;
+                    wishesWall.appendChild(wishCard);
+                });
+            }
+        }
+
+        // ------------------ RSVP 出席表單邏輯 ------------------
+        function toggleAttendanceFields(isAttending) {
+            const detailsGroup = document.getElementById('attendance-details-group');
+            if (isAttending) {
+                detailsGroup.classList.remove('hidden');
+            } else {
+                detailsGroup.classList.add('hidden');
+            }
+        }
+
+        function handleMainCourseChange(index) {
+            const mainCourseVal = document.getElementById(`main-course-${index}`).value;
+            const donenessWrapper = document.getElementById(`doneness-wrapper-${index}`);
+            const donenessSelect = document.getElementById(`doneness-${index}`);
+
+            if (mainCourseVal === 'ribeye') {
+                donenessWrapper.classList.remove('hidden');
+                donenessSelect.required = true;
+            } else {
+                donenessWrapper.classList.add('hidden');
+                donenessSelect.value = '';
+                donenessSelect.required = false;
+            }
+        }
+
+        function generateMealInputs() {
+            const count = parseInt(document.getElementById('guest-count').value) || 1;
+            const container = document.getElementById('meal-inputs-container');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= count; i++) {
+                const item = document.createElement('div');
+                item.className = "bg-white p-4 rounded-xl border border-milktea-200/60 shadow-sm space-y-4";
+                item.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-stone-100 pb-2">
+                        <span class="text-xs font-bold text-coffee-700 bg-milktea-50 px-2 py-0.5 rounded-full"><i class="fa-solid fa-user mr-1"></i> 賓客 ${i} 需求</span>
+                    </div>
+
+                    <!-- 1. 主餐選擇 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 mb-1" for="main-course-${i}">選擇主餐 <span class="text-coffee-500">*</span></label>
+                            <select id="main-course-${i}" onchange="handleMainCourseChange(${i})" required class="w-full px-3 py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none bg-white">
+                                <option value="">-- 請選擇精緻主餐 --</option>
+                                <option value="ribeye">👑 美國頂級低溫烘烤牛肋排6oz</option>
+                                <option value="seafood">主廚時令鮮魚與南非鮮蠔及明蝦</option>
+                                <option value="lamb">紐西蘭嚴選小羔羊排</option>
+                                <option value="veg">素食套餐</option>
+                                <option value="kid">兒童餐</option>
+                            </select>
+                        </div>
+
+                        <!-- 牛肋排熟度連動選擇 -->
+                        <div id="doneness-wrapper-${i}" class="hidden transition-all duration-300">
+                            <label class="block text-xs font-semibold text-stone-600 mb-1" for="doneness-${i}">牛排熟度限制 <span class="text-coffee-500">*</span></label>
+                            <select id="doneness-${i}" class="w-full px-3 py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none bg-white">
+                                <option value="">-- 請選擇熟度 --</option>
+                                <option value="3分熟">3分熟 (建議)</option>
+                                <option value="5分熟">5分熟</option>
+                                <option value="7分熟">7分熟</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 2. 飲食禁忌與其他 -->
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-600 mb-1.5">飲食禁忌複選 (可不選或複選)</label>
+                        <div class="flex flex-wrap gap-4 text-xs">
+                            <label class="flex items-center text-stone-700 cursor-pointer">
+                                <input type="checkbox" name="allergy-${i}" value="全素" class="mr-1.5 rounded text-coffee-500 focus:ring-coffee-400"> 全素
+                            </label>
+                            <label class="flex items-center text-stone-700 cursor-pointer">
+                                <input type="checkbox" name="allergy-${i}" value="不吃牛" class="mr-1.5 rounded text-coffee-500 focus:ring-coffee-400"> 不吃牛
+                            </label>
+                            <label class="flex items-center text-stone-700 cursor-pointer">
+                                <input type="checkbox" name="allergy-${i}" value="不吃海鮮" class="mr-1.5 rounded text-coffee-500 focus:ring-coffee-400"> 不吃海鮮
+                            </label>
+                            <label class="flex items-center text-stone-700 cursor-pointer">
+                                <input type="checkbox" id="allergy-other-check-${i}" value="其他" onchange="toggleAllergyOtherInput(${i})" class="mr-1.5 rounded text-coffee-500 focus:ring-coffee-400"> 其他特殊要求
+                            </label>
+                        </div>
+                        <!-- 其他特殊要求手輸框 -->
+                        <div id="allergy-other-wrapper-${i}" class="hidden mt-2">
+                            <input type="text" id="allergy-other-text-${i}" placeholder="例如：花生過敏、不吃生食..." class="w-full px-3 py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- 3. 餐前酒與果汁變更 -->
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-600 mb-1">餐前酒調整</label>
+                        <label class="flex items-center text-xs text-stone-700 cursor-pointer mt-1">
+                            <input type="checkbox" id="drink-swap-${i}" class="mr-2 rounded text-coffee-500 focus:ring-coffee-400"> 餐前酒更換為健康果汁
+                        </label>
+                    </div>
+                `;
+                container.appendChild(item);
+            }
+        }
+
+        function toggleAllergyOtherInput(index) {
+            const checked = document.getElementById(`allergy-other-check-${index}`).checked;
+            const wrapper = document.getElementById(`allergy-other-wrapper-${index}`);
+            if (checked) {
+                wrapper.classList.remove('hidden');
+            } else {
+                wrapper.classList.add('hidden');
+                document.getElementById(`allergy-other-text-${index}`).value = '';
+            }
+        }
+
+        // 提交表單處理
+        function handleRSVPSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('guest-name').value.trim();
+            const phone = document.getElementById('guest-phone').value.trim();
+            const relation = document.querySelector('input[name="relation"]:checked')?.value || "男方親友";
+            const attendance = document.querySelector('input[name="attendance"]:checked').value;
+            const wish = document.getElementById('guest-wish').value.trim();
+
+            let count = 0;
+            let meals = [];
+            let babyChairs = 0;
+            let selfDrive = "no";
+            let carPlate = "";
+
+            if (attendance === 'yes') {
+                count = parseInt(document.getElementById('guest-count').value);
+                babyChairs = parseInt(document.getElementById('baby-chair-count').value);
+                selfDrive = document.querySelector('input[name="self-drive"]:checked').value;
+                carPlate = document.getElementById('car-plate').value.trim();
+
+                for (let i = 1; i <= count; i++) {
+                    const mainCourse = document.getElementById(`main-course-${i}`).value;
+                    const doneness = document.getElementById(`doneness-${i}`).value;
+                    const drinkSwap = document.getElementById(`drink-swap-${i}`).checked;
+                    
+                    let allergies = [];
+                    const checkboxes = document.querySelectorAll(`input[name="allergy-${i}"]:checked`);
+                    checkboxes.forEach(cb => {
+                        allergies.push(cb.value);
+                    });
+
+                    const otherChecked = document.getElementById(`allergy-other-check-${i}`).checked;
+                    const otherText = document.getElementById(`allergy-other-text-${i}`).value.trim();
+                    if (otherChecked && otherText) {
+                        allergies.push(`其他:${otherText}`);
+                    }
+
+                    meals.push({
+                        main: mainCourse,
+                        doneness: doneness,
+                        drinkSwap: drinkSwap,
+                        allergies: allergies
+                    });
+                }
+            } else if (attendance === 'gift-only') {
+                count = 0;
+            }
+
+            const newGuest = {
+                id: Date.now().toString(),
+                name,
+                phone,
+                relation,
+                attendance,
+                count,
+                meals,
+                babyChairs,
+                selfDrive,
+                carPlate,
+                wish,
+                tableId: ""
+            };
+
+            guests.push(newGuest);
+            showToast(`成功！感謝 ${name} 的回覆與登記`, 'success');
+            
+            // 重置表單
+            document.getElementById('rsvp-form').reset();
+            document.querySelector('input[value="yes"]').checked = true;
+            toggleAttendanceFields(true);
+            toggleCarPlateInput(false);
+            generateMealInputs();
+
+            updateDashboard();
+            switchTab('dashboard');
+        }
+
+        function deleteGuest(id) {
+            if (confirm("您確定要刪除這筆賓客登記紀錄嗎？相關桌位與禮金設定需要一併調整。")) {
+                guests = guests.filter(g => g.id !== id);
+                showToast("成功刪除該筆賓客紀錄", "success");
+                updateDashboard();
+            }
+        }
+
+        // ------------------ 座位配置與地圖系統 ------------------
+        function renderTableGrid() {
+            const grid = document.getElementById('table-grid');
+            grid.innerHTML = '';
+
+            tables.forEach(tbl => {
+                const assignedGuests = guests.filter(g => g.tableId === tbl.id);
+                const currentCount = assignedGuests.reduce((sum, g) => sum + parseInt(g.count), 0);
+
+                let colorClass = 'border-milktea-300 bg-white';
+                let headerBg = 'bg-milktea-50 border-milktea-200 text-coffee-700';
+                if (currentCount >= tbl.capacity) {
+                    colorClass = 'border-coffee-600 bg-milktea-50/20';
+                    headerBg = 'bg-coffee-600 border-coffee-600 text-white';
+                } else if (currentCount > 0) {
+                    colorClass = 'border-coffee-300 bg-white';
+                    headerBg = 'bg-coffee-500 border-coffee-500 text-white';
+                }
+
+                let seatDots = '';
+                for (let i = 0; i < tbl.capacity; i++) {
+                    if (i < currentCount) {
+                        seatDots += `<span class="w-3 h-3 rounded-md bg-coffee-500 inline-block m-0.5 shadow-sm transition-all" title="已安排坐席"></span>`;
+                    } else {
+                        seatDots += `<span class="w-3 h-3 rounded-md bg-stone-100 border border-stone-200 inline-block m-0.5" title="空席"></span>`;
+                    }
+                }
+
+                const tableDiv = document.createElement('div');
+                const widthStyle = tbl.capacity <= 6 ? 'w-56' : tbl.capacity <= 10 ? 'w-64' : 'w-72';
+                tableDiv.className = `flex flex-col items-center cursor-pointer group ${widthStyle} transition-transform hover:scale-105 duration-300`;
+                tableDiv.onclick = () => openTableModal(tbl.id);
+                tableDiv.innerHTML = `
+                    <div class="w-full border-2 rounded-2xl shadow-md overflow-hidden ${colorClass}">
+                        <div class="px-3 py-2 text-xs font-bold text-center border-b flex justify-between items-center ${headerBg}">
+                            <span class="truncate max-w-[120px]">${escapeHtml(tbl.name)}</span>
+                            <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full font-mono">${currentCount} / ${tbl.capacity} 席</span>
+                        </div>
+                        
+                        <div class="p-3 flex flex-wrap justify-center items-center gap-1 bg-stone-50/50">
+                            ${seatDots}
+                        </div>
+                        
+                        <div class="p-3 text-[10px] text-stone-500 border-t border-stone-100 divide-y divide-stone-50">
+                            ${assignedGuests.length > 0 ? assignedGuests.map(g => {
+                                const mealsSummary = g.meals.map(m => {
+                                    let c = m.main === 'veg' ? '素' : m.main === 'kid' ? '兒' : '葷';
+                                    if (m.allergies && m.allergies.length > 0 && m.allergies[0] !== "無特別限制") m.allergies.forEach(al => { if (al !== "無特別限制") c += '!'; });
+                                    return c;
+                                }).join('/');
+                                return `
+                                    <div class="py-1 flex justify-between items-center">
+                                        <span class="font-semibold text-stone-700 truncate max-w-[90px]">${escapeHtml(g.name)} (${g.count}人)</span>
+                                        <span class="text-[9px] text-coffee-600 bg-milktea-50 px-1 rounded scale-90 font-mono">${mealsSummary}</span>
+                                    </div>
+                                `;
+                            }).join('') : '<div class="text-center text-stone-300 py-1 font-light">長桌尚無排座</div>'}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(tableDiv);
+            });
+        }
+
+        function renderUnassignedGuests() {
+            const listContainer = document.getElementById('unassigned-guests');
+            listContainer.innerHTML = '';
+
+            const unassigned = guests.filter(g => g.attendance === 'yes' && (!g.tableId || g.tableId === ''));
+
+            if (unassigned.length === 0) {
+                listContainer.innerHTML = `<div class="text-xs text-stone-400 text-center py-6 bg-stone-50 rounded-lg">🎉 所有賓客皆已入座長桌！</div>`;
+                return;
+            }
+
+            unassigned.forEach(g => {
+                const guestCard = document.createElement('div');
+                guestCard.className = "bg-stone-50 hover:bg-milktea-50 border border-stone-200 hover:border-milktea-200 rounded-lg p-2.5 flex flex-col space-y-1.5 text-xs transition-all";
+                
+                let mainSummary = g.meals.map(m => {
+                    if (m.main === 'ribeye') return "牛";
+                    if (m.main === 'seafood') return "魚";
+                    if (m.main === 'lamb') return "羊";
+                    if (m.main === 'veg') return "素";
+                    if (m.main === 'kid') return "兒";
+                    return "";
+                }).join('/');
+
+                let hasAllergies = false;
+                g.meals.forEach(m => {
+                    if (m.allergies && m.allergies.length > 0 && m.allergies[0] !== "無特別限制") {
+                        hasAllergies = true;
+                    }
+                });
+
+                guestCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-stone-700">${escapeHtml(g.name)} <span class="text-[10px] bg-stone-200 text-stone-600 px-1 rounded">${g.count}人</span></p>
+                            <p class="text-[10px] text-stone-400 mt-0.5">${g.relation} | 主餐: ${mainSummary}</p>
+                        </div>
+                        <select onchange="quickAssign('${g.id}', this.value)" class="text-[10px] bg-white border border-stone-200 rounded p-1 outline-none focus:ring-1 focus:ring-coffee-400">
+                            <option value="">選桌..</option>
+                            ${tables.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    ${hasAllergies ? `<div class="text-[9px] bg-amber-50 border border-amber-100 text-amber-700 rounded px-1 py-0.5"><i class="fa-solid fa-triangle-exclamation mr-1"></i>此賓客組合有飲食禁忌/過敏</div>` : ''}
+                `;
+                listContainer.appendChild(guestCard);
+            });
+        }
+
+        function filterSeatingGuests() {
+            const query = document.getElementById('seating-search').value.toLowerCase();
+            const listContainer = document.getElementById('unassigned-guests');
+            const unassigned = guests.filter(g => g.attendance === 'yes' && (!g.tableId || g.tableId === ''));
+            
+            const filtered = unassigned.filter(g => g.name.toLowerCase().includes(query) || g.relation.toLowerCase().includes(query));
+            listContainer.innerHTML = '';
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `<div class="text-xs text-stone-400 text-center py-6 bg-stone-50 rounded-lg">找不到相符的未入座賓客</div>`;
+                return;
+            }
+
+            filtered.forEach(g => {
+                const guestCard = document.createElement('div');
+                guestCard.className = "bg-stone-50 hover:bg-milktea-50 border border-stone-200 hover:border-milktea-200 rounded-lg p-2.5 flex flex-col space-y-1 text-xs transition-all";
+                guestCard.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-stone-700">${escapeHtml(g.name)} <span class="text-[10px] bg-stone-200 text-stone-600 px-1 rounded">${g.count}人</span></p>
+                            <p class="text-[10px] text-stone-400 mt-0.5">${g.relation}</p>
+                        </div>
+                        <select onchange="quickAssign('${g.id}', this.value)" class="text-[10px] bg-white border border-stone-200 rounded p-1 outline-none">
+                            <option value="">選桌..</option>
+                            ${tables.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+                listContainer.appendChild(guestCard);
+            });
+        }
+
+        function quickAssign(guestId, tableId) {
+            if (!tableId) return;
+            const guest = guests.find(g => g.id === guestId);
+            const table = tables.find(t => t.id === tableId);
+            
+            if (guest && table) {
+                const assignedGuests = guests.filter(g => g.tableId === table.id);
+                const currentCount = assignedGuests.reduce((sum, g) => sum + parseInt(g.count), 0);
+                if (currentCount + guest.count > table.capacity) {
+                    if (!confirm(`該長桌目前的座位上限為 ${table.capacity} 人，加上這組賓客 (${guest.count} 人) 將會超出。是否依然強制指派？`)) {
+                        renderUnassignedGuests();
+                        return;
+                    }
+                }
+                guest.tableId = tableId;
+                showToast(`已將 ${guest.name} 分配至 ${table.name}`, 'success');
+                renderTableGrid();
+                renderUnassignedGuests();
+            }
+        }
+
+        function autoAssignSeats() {
+            const unassigned = guests.filter(g => g.attendance === 'yes' && (!g.tableId || g.tableId === ''));
+            if (unassigned.length === 0) {
+                showToast("目前所有賓客皆已安排了長桌座位！", "info");
+                return;
+            }
+
+            let countAssigned = 0;
+            unassigned.forEach(guest => {
+                for (let i = 0; i < tables.length; i++) {
+                    const table = tables[i];
+                    const assignedGuests = guests.filter(g => g.tableId === table.id);
+                    const currentCount = assignedGuests.reduce((sum, g) => sum + parseInt(g.count), 0);
+
+                    if (currentCount + guest.count <= table.capacity) {
+                        guest.tableId = table.id;
+                        countAssigned++;
+                        break;
+                    }
+                }
+            });
+
+            if (countAssigned > 0) {
+                showToast(`成功為 ${countAssigned} 組賓客自動排配長桌座位！`, "success");
+                renderTableGrid();
+                renderUnassignedGuests();
+            } else {
+                showToast("目前長桌席位已滿，請點擊「新增長桌」並提高席次限制後再次嘗試安排！", "error");
+            }
+        }
+
+        function addNewTable() {
+            const nextNum = tables.length + 1;
+            const newTbl = {
+                id: `table-${Date.now()}`,
+                name: `親友新長桌 ${nextNum}`,
+                capacity: 8
+            };
+            tables.push(newTbl);
+            showToast(`已新增：${newTbl.name} (容量上限 8 席)`, 'success');
+            renderTableGrid();
+        }
+
+        // ------------------ 單桌詳細編輯模態視窗 ------------------
+        function openTableModal(tableId) {
+            activeTableId = tableId;
+            const table = tables.find(t => t.id === tableId);
+            if (!table) return;
+
+            document.getElementById('modal-table-name').value = table.name;
+            document.getElementById('modal-table-capacity-input').value = table.capacity;
+            
+            const assigned = guests.filter(g => g.tableId === tableId);
+            const currentCount = assigned.reduce((sum, g) => sum + parseInt(g.count), 0);
+            document.getElementById('modal-table-capacity').innerText = `目前入座人數：${currentCount} / ${table.capacity}`;
+
+            const guestsContainer = document.getElementById('modal-table-guests');
+            guestsContainer.innerHTML = '';
+            
+            if (assigned.length === 0) {
+                guestsContainer.innerHTML = `<p class="text-xs text-stone-400 text-center py-4 bg-stone-50 rounded-lg">此長桌目前空無一人</p>`;
+            } else {
+                assigned.forEach(g => {
+                    let mealsHtml = g.meals.map((m, idx) => {
+                        let mainChinese = "";
+                        if (m.main === 'ribeye') mainChinese = `🥩牛肋排 (${m.doneness})`;
+                        else if (m.main === 'seafood') mainChinese = "🐟時令鮮魚拼盤";
+                        else if (m.main === 'lamb') mainChinese = "🐑小羔羊排";
+                        else if (m.main === 'veg') mainChinese = "🥗素食套餐";
+                        else if (m.main === 'kid') mainChinese = "👶兒童餐";
+                        else mainChinese = "其他未設定";
+
+                        let allergiesText = "";
+                        if (m.allergies && m.allergies.length > 0 && m.allergies[0] !== "無特別限制") {
+                            allergiesText = `<span class="bg-amber-100 text-amber-800 border border-amber-200 px-1 py-0.5 rounded ml-1 scale-90 inline-block font-sans">禁: ${m.allergies.join('/')}</span>`;
+                        }
+
+                        let drinkText = m.drinkSwap ? `<span class="bg-blue-50 text-blue-700 border border-blue-100 px-1 py-0.5 rounded ml-1 scale-90 inline-block font-sans">🥤換果汁</span>` : "";
+
+                        return `
+                            <div class="text-[11px] text-stone-600 flex items-center flex-wrap py-0.5">
+                                <span class="bg-stone-200 text-stone-700 px-1 rounded-md font-mono scale-90 mr-1">賓客 ${idx + 1}</span>
+                                <span class="font-medium">${mainChinese}</span>
+                                ${allergiesText}
+                                ${drinkText}
+                            </div>
+                        `;
+                    }).join('');
+
+                    const div = document.createElement('div');
+                    div.className = "bg-stone-50 p-3 rounded-xl border border-stone-200 flex flex-col space-y-2";
+                    div.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="font-bold text-stone-800 text-sm">${escapeHtml(g.name)}</span>
+                                <span class="text-[10px] text-stone-400 ml-1.5">(${g.count}人, ${g.relation})</span>
+                            </div>
+                            <button onclick="removeGuestFromTable('${g.id}')" class="text-coffee-600 hover:text-coffee-800 text-xs font-semibold"><i class="fa-solid fa-user-minus mr-1"></i> 移出長桌</button>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg border border-stone-100 space-y-1">
+                            ${mealsHtml}
+                        </div>
+                    `;
+                    guestsContainer.appendChild(div);
+                });
+            }
+
+            const assignSelect = document.getElementById('modal-assign-select');
+            assignSelect.innerHTML = '<option value="">-- 選擇要加入此長桌的賓客 --</option>';
+            const unassigned = guests.filter(g => g.attendance === 'yes' && (!g.tableId || g.tableId === ''));
+            unassigned.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g.id;
+                opt.innerText = `${g.name} (${g.count}人 - ${g.relation})`;
+                assignSelect.appendChild(opt);
+            });
+
+            document.getElementById('table-edit-modal').classList.add('modal-active');
+        }
+
+        function closeTableModal() {
+            document.getElementById('table-edit-modal').classList.remove('modal-active');
+            activeTableId = "";
+            renderTableGrid();
+            renderUnassignedGuests();
+        }
+
+        function saveTableModalEdit() {
+            if (!activeTableId) return;
+            const newName = document.getElementById('modal-table-name').value.trim();
+            const newCapacity = parseInt(document.getElementById('modal-table-capacity-input').value);
+            const table = tables.find(t => t.id === activeTableId);
+            
+            if (table) {
+                if (newName) table.name = newName;
+                if (!isNaN(newCapacity) && newCapacity > 0) {
+                    table.capacity = newCapacity;
+                }
+                showToast("長桌座位與設定資訊已更新！", "success");
+            }
+            closeTableModal();
+        }
+
+        function removeGuestFromTable(guestId) {
+            const guest = guests.find(g => g.id === guestId);
+            if (guest) {
+                guest.tableId = "";
+                showToast(`已將 ${guest.name} 移出長桌`, "info");
+                openTableModal(activeTableId);
+            }
+        }
+
+        function assignGuestToCurrentTable() {
+            const select = document.getElementById('modal-assign-select');
+            const guestId = select.value;
+            if (!guestId || !activeTableId) return;
+
+            const guest = guests.find(g => g.id === guestId);
+            const table = tables.find(t => t.id === activeTableId);
+            
+            if (guest && table) {
+                guest.tableId = activeTableId;
+                showToast(`已將 ${guest.name} 分配至 ${table.name}`, 'success');
+                openTableModal(activeTableId);
+            }
+        }
+
+        function deleteCurrentTable() {
+            if (!activeTableId) return;
+            const table = tables.find(t => t.id === activeTableId);
+            if (!table) return;
+
+            if (confirm(`您確定要拆除「${table.name}」嗎？該長桌所有賓客將被重新設為「待分配」狀態。`)) {
+                guests.forEach(g => {
+                    if (g.tableId === activeTableId) {
+                        g.tableId = "";
+                    }
+                });
+                tables = tables.filter(t => t.id !== activeTableId);
+                showToast(`已成功拆除該長桌座位`, "success");
+                closeTableModal();
+            }
+        }
+
+        // ------------------ 電子禮金簿控制 ------------------
+        function setGiftAmount(val) {
+            document.getElementById('gift-amount').value = val;
+        }
+
+        function suggestGiftGivers() {
+            const inputVal = document.getElementById('gift-giver').value.trim().toLowerCase();
+            const suggestionBox = document.getElementById('giver-suggestions');
+            suggestionBox.innerHTML = '';
+
+            if (!inputVal) {
+                suggestionBox.classList.add('hidden');
+                return;
+            }
+
+            const matches = guests.filter(g => g.name.toLowerCase().includes(inputVal));
+            
+            if (matches.length === 0) {
+                suggestionBox.classList.add('hidden');
+                return;
+            }
+
+            suggestionBox.classList.remove('hidden');
+            matches.forEach(m => {
+                const div = document.createElement('div');
+                div.className = "px-4 py-2 hover:bg-stone-50 cursor-pointer text-stone-700 transition-all border-b border-stone-100 last:border-0";
+                div.innerText = `${m.name} (${m.relation})`;
+                div.onclick = () => {
+                    document.getElementById('gift-giver').value = m.name;
+                    document.getElementById('gift-note').value = `${m.relation}，出席人數：${m.count}人`;
+                    suggestionBox.classList.add('hidden');
+                };
+                suggestionBox.appendChild(div);
+            });
+        }
+
+        function handleGiftSubmit(e) {
+            e.preventDefault();
+            const giver = document.getElementById('gift-giver').value.trim();
+            const amount = parseInt(document.getElementById('gift-amount').value);
+            const note = document.getElementById('gift-note').value.trim();
+
+            if (!giver || isNaN(amount)) {
+                showToast("請填寫正確的姓名與禮金金額！", "error");
+                return;
+            }
+
+            const newGift = {
+                id: `gift-${Date.now()}`,
+                giver,
+                amount,
+                note
+            };
+
+            gifts.push(newGift);
+            showToast(`成功登入！感謝 ${giver} 贈禮 TWD ${amount}`, 'success');
+            
+            document.getElementById('gift-form').reset();
+            document.getElementById('giver-suggestions').classList.add('hidden');
+            
+            renderGiftLedger();
+            updateDashboard();
+        }
+
+        function renderGiftLedger() {
+            const tableBody = document.getElementById('gift-table-body');
+            const searchVal = document.getElementById('gift-search').value.toLowerCase().trim();
+            tableBody.innerHTML = '';
+
+            const filteredGifts = gifts.filter(g => g.giver.toLowerCase().includes(searchVal) || g.note.toLowerCase().includes(searchVal));
+
+            document.getElementById('gift-list-stat').innerText = `目前累計：${filteredGifts.length} 筆登記，總金額：$${filteredGifts.reduce((s,g)=>s+g.amount,0).toLocaleString()} 元`;
+
+            if (filteredGifts.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-stone-400 text-xs">尚無相關禮金登錄紀錄</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredGifts.forEach((g, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-stone-50/50 text-xs";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-stone-400 font-mono">${index + 1}</td>
+                    <td class="px-4 py-3 font-semibold text-stone-700">${escapeHtml(g.giver)}</td>
+                    <td class="px-4 py-3 text-right font-mono font-bold text-coffee-600">$${g.amount.toLocaleString()}</td>
+                    <td class="px-4 py-3 text-stone-500">${escapeHtml(g.note || '-')}</td>
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="deleteGiftItem('${g.id}')" class="text-stone-400 hover:text-coffee-600 transition-all"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function deleteGiftItem(id) {
+            if (confirm("您確定要刪除這筆禮金記錄嗎？統計數額將立即調回。")) {
+                gifts = gifts.filter(g => g.id !== id);
+                showToast("禮金帳目已成功刪除！", "success");
+                renderGiftLedger();
+                updateDashboard();
+            }
+        }
+
+        function exportGiftLedger() {
+            if (gifts.length === 0) {
+                showToast("目前尚無禮金數據可以匯出！", "error");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "序號,送禮人姓名,禮金金額,備註細節\n";
+
+            gifts.forEach((g, idx) => {
+                csvContent += `${idx + 1},"${g.giver.replace(/"/g, '""')}",${g.amount},"${(g.note || '').replace(/"/g, '""')}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `12_hours_closer_婚禮電子禮金簿_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("禮金簿 CSV 已成功下載！", "success");
+        }
+
+        // ------------------ 車位折抵登記與管理系統 ------------------
+        function suggestParkingGuests() {
+            const inputVal = document.getElementById('parking-guest-name').value.trim().toLowerCase();
+            const suggestionBox = document.getElementById('parking-guest-suggestions');
+            suggestionBox.innerHTML = '';
+
+            if (!inputVal) {
+                suggestionBox.classList.add('hidden');
+                return;
+            }
+
+            const matches = guests.filter(g => g.name.toLowerCase().includes(inputVal) && g.attendance === 'yes');
+            
+            if (matches.length === 0) {
+                suggestionBox.classList.add('hidden');
+                return;
+            }
+
+            suggestionBox.classList.remove('hidden');
+            matches.forEach(m => {
+                const div = document.createElement('div');
+                div.className = "px-4 py-2 hover:bg-stone-50 cursor-pointer text-stone-700 transition-all border-b border-stone-100 last:border-0";
+                div.innerText = `${m.name} (${m.relation})`;
+                div.onclick = () => {
+                    document.getElementById('parking-guest-name').value = m.name;
+                    if (m.carPlate) {
+                        document.getElementById('parking-plate').value = m.carPlate;
+                    }
+                    suggestionBox.classList.add('hidden');
+                };
+                suggestionBox.appendChild(div);
+            });
+        }
+
+        function handleParkingSelfSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('parking-guest-name').value.trim();
+            const plate = document.getElementById('parking-plate').value.trim().toUpperCase();
+
+            let guest = guests.find(g => g.name === name && g.attendance === 'yes');
+
+            if (guest) {
+                guest.selfDrive = "yes";
+                guest.carPlate = plate;
+                showToast(`已成功為 ${name} 更新車牌：${plate}`, 'success');
+            } else {
+                const newGuest = {
+                    id: Date.now().toString(),
+                    name: name,
+                    phone: "",
+                    relation: "現場臨時登記",
+                    attendance: "yes",
+                    count: 1,
+                    meals: [{ main: "ribeye", doneness: "5分熟", drinkSwap: false, allergies: [] }],
+                    babyChairs: 0,
+                    selfDrive: "yes",
+                    carPlate: plate,
+                    wish: "",
+                    tableId: ""
+                };
+                guests.push(newGuest);
+                showToast(`已為您（現場親友：${name}）建立折抵並綁定車牌：${plate}`, 'success');
+            }
+
+            document.getElementById('parking-self-form').reset();
+            document.getElementById('parking-guest-suggestions').classList.add('hidden');
+            
+            renderParkingLedger();
+            updateDashboard();
+        }
+
+        function renderParkingLedger() {
+            const tableBody = document.getElementById('parking-table-body');
+            const searchVal = document.getElementById('parking-search').value.toLowerCase().trim();
+            tableBody.innerHTML = '';
+
+            const drivingGuests = guests.filter(g => g.attendance === 'yes' && g.selfDrive === 'yes' && g.carPlate && g.carPlate.trim() !== "");
+
+            const filteredParking = drivingGuests.filter(g => g.name.toLowerCase().includes(searchVal) || g.carPlate.toLowerCase().includes(searchVal));
+
+            document.getElementById('parking-list-stat').innerText = `目前已登記車輛：${filteredParking.length} 輛`;
+
+            if (filteredParking.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-stone-400 text-xs">尚無相關車位折抵登記記錄</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredParking.forEach((g, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-stone-50/50 text-xs";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-stone-400 font-mono">${index + 1}</td>
+                    <td class="px-4 py-3 font-semibold text-stone-700">${escapeHtml(g.name)}</td>
+                    <td class="px-4 py-3 text-stone-500">${g.relation || '現場登記'}</td>
+                    <td class="px-4 py-3 font-mono font-bold text-coffee-600 tracking-wider">${escapeHtml(g.carPlate)}</td>
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="deleteParkingItem('${g.id}')" class="text-stone-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-trash-can"></i> 移除</button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function deleteParkingItem(guestId) {
+            const guest = guests.find(g => g.id === guestId);
+            if (guest) {
+                if (confirm(`確定要移除 ${guest.name} 的車牌登記嗎？`)) {
+                    guest.selfDrive = "no";
+                    guest.carPlate = "";
+                    showToast("已成功移除該車牌折抵登記！", "success");
+                    renderParkingLedger();
+                    updateDashboard();
+                }
+            }
+        }
+
+        function exportParkingLedger() {
+            const drivingGuests = guests.filter(g => g.attendance === 'yes' && g.selfDrive === 'yes' && g.carPlate && g.carPlate.trim() !== "");
+            
+            if (drivingGuests.length === 0) {
+                showToast("目前尚無車牌折抵數據可以匯出！", "error");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "序號,登記人姓名,賓客關係,車牌號碼(統一折抵欄位),折抵備註\n";
+
+            drivingGuests.forEach((g, idx) => {
+                csvContent += `${idx + 1},"${g.name.replace(/"/g, '""')}",${g.relation || '現場登記'},"${g.carPlate.replace(/"/g, '""')}","Lawry's Taipei 婚宴車位折抵"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `12_hours_closer_飯店車牌折抵清單_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("車牌折抵清單 CSV 已成功下載！", "success");
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    </script>
+</body>
+</html>
