@@ -48,7 +48,6 @@
             background: linear-gradient(135deg, #FAF6F0 0%, #E7DBCB 100%);
         }
         .hero-gradient {
-            /* 採用優雅的暖調歐式婚禮長桌圖片，搭配咖啡色微光漸層濾鏡 */
             background: linear-gradient(rgba(43, 34, 27, 0.45), rgba(66, 48, 36, 0.7)), url('https://images.unsplash.com/photo-1519225495810-7512c696505a?auto=format&fit=crop&q=80&w=2000') no-repeat center center;
             background-size: cover;
         }
@@ -59,8 +58,8 @@
 </head>
 <body class="bg-stone-50 font-sans text-stone-800 leading-normal tracking-wide">
 
-    <!-- 頂部導覽列 -->
-    <nav class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-milktea-200">
+    <!-- 頂部導覽列 (僅限管理員解鎖後或非賓客模式下顯示) -->
+    <nav id="admin-navbar" class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-milktea-200 hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -77,7 +76,7 @@
                         <i class="fa-solid fa-chart-line mr-1"></i>儀表板
                     </button>
                     <button onclick="switchTab('rsvp')" id="btn-rsvp" class="tab-btn px-3 py-2 text-sm font-medium text-stone-500 hover:text-coffee-600 border-b-2 border-transparent transition-all">
-                        <i class="fa-solid fa-pen-to-square mr-1"></i>出席登記
+                        <i class="fa-solid fa-pen-to-square mr-1"></i>出席管理
                     </button>
                     <button onclick="switchTab('seating')" id="btn-seating" class="tab-btn px-3 py-2 text-sm font-medium text-stone-500 hover:text-coffee-600 border-b-2 border-transparent transition-all">
                         <i class="fa-solid fa-chair mr-1"></i>座位配置
@@ -87,6 +86,9 @@
                     </button>
                     <button onclick="switchTab('parking')" id="btn-parking" class="tab-btn px-3 py-2 text-sm font-medium text-stone-500 hover:text-coffee-600 border-b-2 border-transparent transition-all">
                         <i class="fa-solid fa-square-parking mr-1"></i>車牌折抵
+                    </button>
+                    <button onclick="lockAdminConsole()" class="text-stone-400 hover:text-rose-600 text-sm ml-2" title="登出後台鎖定">
+                        <i class="fa-solid fa-lock text-lg"></i>
                     </button>
                 </div>
             </div>
@@ -102,7 +104,41 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- ==================== 鎖定畫面 / 密碼登入 (Admin Login Screen) ==================== -->
+    <section id="login-screen" class="max-w-md mx-auto my-12 bg-white p-8 rounded-2xl shadow-md border border-milktea-200 hidden">
+        <div class="text-center space-y-3 mb-6">
+            <div class="mx-auto w-12 h-12 bg-milktea-50 border border-milktea-200 rounded-full flex items-center justify-center text-coffee-600">
+                <i class="fa-solid fa-shield-halved text-xl"></i>
+            </div>
+            <h2 class="text-lg font-bold text-coffee-800">12 hours closer 管理登入</h2>
+            <p class="text-xs text-stone-400">本頁面包含座位安排與禮金等機敏資訊，請輸入管理密碼解鎖。</p>
+        </div>
+        <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-stone-500 mb-1">管理密碼</label>
+                <input type="password" id="admin-password" required class="w-full px-4 py-2 border border-milktea-200 rounded-lg outline-none text-sm text-center tracking-widest font-mono" placeholder="請輸入密碼 (預設0307)">
+            </div>
+            <button type="submit" class="w-full bg-coffee-600 hover:bg-coffee-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-all shadow-sm">
+                驗證並進入系統
+            </button>
+        </form>
+        <div class="mt-6 border-t border-stone-100 pt-4 text-center">
+            <button onclick="forceGuestView()" class="text-xs text-coffee-500 hover:underline">
+                <i class="fa-solid fa-paper-plane mr-1"></i>切換至賓客填寫模式
+            </button>
+        </div>
+    </section>
+
+    <!-- 賓客專用頂部引導 (僅在賓客模式下顯示) -->
+    <div id="guest-header-hint" class="max-w-2xl mx-auto px-4 mt-8 hidden">
+        <div class="bg-milktea-50 border border-milktea-200 p-4 rounded-xl text-center space-y-1">
+            <p class="text-xs font-semibold text-coffee-600">親愛的賓客您好</p>
+            <p class="text-[11px] text-stone-500">此頁面為 12 hours closer 專屬回覆系統，請填寫您的出席與餐點意願。</p>
+        </div>
+    </div>
+
+    <!-- 主體內容區 -->
+    <main id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden">
         
         <!-- 自訂提示訊息框 -->
         <div id="toast" class="fixed bottom-5 right-5 bg-stone-900 text-white px-6 py-3 rounded-lg shadow-xl z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-2">
@@ -112,7 +148,19 @@
 
         <!-- ==================== 1. 儀表板分頁 (Dashboard) ==================== -->
         <section id="tab-dashboard" class="tab-content block space-y-6">
-            <!-- 第一排：出席與入座進度 (3欄版面) -->
+            <!-- 上方控制列 (內含複製連結) -->
+            <div class="bg-white p-4 rounded-xl border border-milktea-100 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="text-xs text-stone-500">
+                    <span class="font-bold text-coffee-700"><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i>系統狀態：</span> 已解鎖管理權限，您可以分享專屬連結給賓客。
+                </div>
+                <div class="flex space-x-2 w-full sm:w-auto">
+                    <button onclick="copyGuestLink()" class="flex-1 sm:flex-none bg-milktea-100 hover:bg-milktea-200 text-coffee-700 text-xs font-semibold py-2 px-4 rounded-lg transition-all border border-milktea-200 flex items-center justify-center">
+                        <i class="fa-solid fa-share-nodes mr-1.5"></i> 複製賓客專屬 RSVP 連結
+                    </button>
+                </div>
+            </div>
+
+            <!-- 第一排：出席與報到進度 (3欄版面) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- 預計出席總人數 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex items-center space-x-4">
@@ -124,38 +172,38 @@
                         <h3 class="text-2xl font-bold text-coffee-800 mt-1" id="stat-attendance-total">0 <span class="text-sm font-normal text-stone-500">人</span></h3>
                     </div>
                 </div>
-                <!-- 已排座位數 -->
+                <!-- 報到人數 (與禮金登記/手動簽到連動) -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex items-center space-x-4">
-                    <div class="p-4 bg-coffee-50 rounded-xl text-coffee-500 border border-coffee-100">
-                        <i class="fa-solid fa-chair text-2xl"></i>
+                    <div class="p-4 bg-emerald-50 rounded-xl text-emerald-600 border border-emerald-100">
+                        <i class="fa-solid fa-clipboard-user text-2xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-stone-400 font-medium">座位已入座席次</p>
-                        <h3 class="text-2xl font-bold text-stone-800 mt-1" id="stat-seating-progress">0/0 <span class="text-xs font-normal text-stone-400">人</span></h3>
+                        <p class="text-sm text-stone-400 font-medium">已到場報到人數</p>
+                        <h3 class="text-2xl font-bold text-stone-800 mt-1" id="stat-checkin-progress">0/0 <span class="text-xs font-normal text-stone-400">人</span></h3>
                     </div>
                 </div>
-                <!-- 入座進度百分比 -->
+                <!-- 報到進度百分比 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col justify-center">
                     <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm text-stone-400 font-medium">座位指派進度</span>
-                        <span class="text-lg font-bold text-coffee-600" id="stat-seating-percent">0%</span>
+                        <span class="text-sm text-stone-400 font-medium">當日禮金/現場簽到率</span>
+                        <span class="text-lg font-bold text-coffee-600" id="stat-checkin-percent">0%</span>
                     </div>
                     <!-- 擬真進度條 -->
                     <div class="w-full bg-stone-100 rounded-full h-2.5 overflow-hidden">
-                        <div id="stat-seating-bar" class="bg-gradient-to-r from-milktea-300 to-coffee-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        <div id="stat-checkin-bar" class="bg-gradient-to-r from-milktea-300 to-coffee-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                 </div>
             </div>
 
             <!-- 第二排：主餐與禮金統計 (2欄寬版) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- 經典主餐預算與素食 -->
+                <!-- 經典主餐需求與預算統計 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex items-center space-x-4">
                     <div class="p-4 bg-milktea-50 rounded-xl text-coffee-700 flex-shrink-0 border border-milktea-200">
                         <i class="fa-solid fa-utensils text-2xl"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm text-stone-400 font-medium mb-1">主餐需求總攬與預算統計</p>
+                        <p class="text-sm text-stone-400 font-medium mb-1">主餐需求</p>
                         <h3 class="text-sm font-semibold text-coffee-700 leading-relaxed truncate" id="stat-meal-summary">
                             牛: 0 / 羊: 0 / 魚: 0 / 素: 0 / 兒: 0
                         </h3>
@@ -177,19 +225,28 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- 出席者列表 -->
                 <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-milktea-100 p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-lg font-bold text-coffee-800"><i class="fa-solid fa-address-book text-coffee-500 mr-2"></i>最新出席登記</h2>
-                        <button onclick="switchTab('rsvp')" class="text-xs text-coffee-600 hover:underline font-semibold">新增登記 <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+                        <div class="flex items-center space-x-2">
+                            <h2 class="text-lg font-bold text-coffee-800"><i class="fa-solid fa-address-book text-coffee-500 mr-2"></i>當日出席報到清單</h2>
+                            <span class="text-xs text-stone-400">勾選「報到狀態」即可現場簽到</span>
+                        </div>
+                        <!-- 動態搜尋出席名單 -->
+                        <div class="relative w-full sm:w-64">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-stone-400">
+                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                            </span>
+                            <input type="text" id="attendance-search" oninput="updateDashboard()" placeholder="搜尋姓名、電話、關係、桌號..." class="w-full pl-8 pr-3 py-1.5 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none">
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-stone-100 text-sm text-left">
                             <thead class="bg-milktea-50 text-coffee-700 text-xs uppercase">
                                 <tr>
+                                    <th class="px-4 py-3">現場簽到</th>
                                     <th class="px-4 py-3">賓客姓名</th>
                                     <th class="px-4 py-3">出席狀態</th>
-                                    <th class="px-4 py-3">人數 / 交通</th>
-                                    <th class="px-4 py-3">餐點與要求細節</th>
-                                    <th class="px-4 py-3">關係</th>
+                                    <th class="px-4 py-3">人數/桌號</th>
+                                    <th class="px-4 py-3">餐點選擇與飲食禁忌</th>
                                     <th class="px-4 py-3">操作</th>
                                 </tr>
                             </thead>
@@ -216,7 +273,7 @@
                 <div class="milktea-gradient p-8 text-center border-b border-milktea-200">
                     <span class="text-coffee-600 text-xs uppercase tracking-widest font-semibold block mb-2">RSVP FORM</span>
                     <h2 class="font-serif text-2xl font-bold text-coffee-800">出席意願與餐點統計表</h2>
-                    <p class="text-coffee-600 text-xs mt-2">請於 2027 年 1 月 31 日前完成填寫，以利我們安排 Lawry's 盛宴</p>
+                    <p class="text-coffee-600 text-xs mt-2">請完成填寫，以利我們安排座位與餐點 </p>
                 </div>
                 
                 <form id="rsvp-form" onsubmit="handleRSVPSubmit(event)" class="p-8 space-y-6">
@@ -351,12 +408,11 @@
         <!-- ==================== 3. 互動座位配置分頁 (Interactive Seating Map) ==================== -->
         <section id="tab-seating" class="tab-content hidden space-y-6">
             <div class="flex flex-col lg:flex-row gap-6">
-                
                 <!-- 左側：待分座賓客清單 -->
-                <div class="w-full lg:w-1/4 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col h-[600px]">
+                <div id="unassigned-guests-sidebar" class="w-full lg:w-1/4 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col h-[600px]">
                     <div class="mb-4">
                         <h3 class="text-base font-bold text-stone-800"><i class="fa-solid fa-user-tag text-coffee-500 mr-2"></i>待分配賓客</h3>
-                        <p class="text-xs text-stone-400 mt-1">點擊賓客名稱再選擇桌號，或直接拖曳分配</p>
+                        <p class="text-xs text-stone-400 mt-1">點擊賓客名稱再選擇桌號，或直接分配</p>
                     </div>
                     <!-- 搜尋賓客 -->
                     <input type="text" id="seating-search" oninput="filterSeatingGuests()" placeholder="搜尋賓客姓名..." class="w-full px-3 py-1.5 mb-4 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none">
@@ -367,13 +423,16 @@
                 </div>
 
                 <!-- 右側：座位地圖 -->
-                <div class="w-full lg:w-3/4 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col">
+                <div id="seating-main-map" class="w-full lg:w-3/4 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col">
                     <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
                         <div>
-                            <h3 class="text-lg font-bold text-stone-800"><i class="fa-solid fa-map text-coffee-500 mr-2"></i>主會場座位平面圖 (長桌席位)</h3>
-                            <p class="text-xs text-stone-400 mt-1">點擊長桌可自訂桌名、座位上限與查看詳細主餐禁忌</p>
+                            <h3 class="text-lg font-bold text-stone-800"><i class="fa-solid fa-map text-coffee-500 mr-2"></i>會場長桌平面圖</h3>
+                            <p class="text-xs text-stone-400 mt-1">點擊長桌可自訂桌名、座位上限與查看詳細主餐與特殊飲食限制</p>
                         </div>
-                        <div class="flex space-x-2">
+                        <div class="flex space-x-2" id="seating-admin-buttons">
+                            <button onclick="copySeatingLink()" class="bg-milktea-100 hover:bg-milktea-200 text-coffee-700 text-xs font-semibold py-2 px-3 rounded-lg transition-all border border-milktea-200">
+                                <i class="fa-solid fa-share-nodes mr-1"></i>複製座位配置連結
+                            </button>
                             <button onclick="addNewTable()" class="bg-milktea-50 text-coffee-600 hover:bg-milktea-100 text-xs font-semibold py-2 px-3 rounded-lg transition-all border border-milktea-200">
                                 <i class="fa-solid fa-plus mr-1"></i>新增長桌
                             </button>
@@ -402,10 +461,12 @@
                 <!-- 左側：新增禮金登記 -->
                 <div class="w-full lg:w-1/3 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100">
                     <h3 class="text-lg font-bold text-stone-800 mb-4"><i class="fa-solid fa-file-invoice-dollar text-coffee-500 mr-2"></i>現場禮金登記</h3>
+                    <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-xl mb-4 text-xs text-emerald-800">
+                        <i class="fa-solid fa-circle-info mr-1"></i> 提示：在此登錄禮金時，系統將**自動完成賓客當日出席簽到**！
+                    </div>
                     <form id="gift-form" onsubmit="handleGiftSubmit(event)" class="space-y-4">
                         <div>
                             <label class="block text-xs font-semibold text-stone-600 mb-1" for="gift-giver">送禮賓客姓名</label>
-                            <!-- 加上搜尋與快速選取功能 -->
                             <div class="relative">
                                 <input type="text" id="gift-giver" required oninput="suggestGiftGivers()" class="w-full px-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none" placeholder="輸入姓名或搜尋已登記賓客">
                                 <div id="giver-suggestions" class="absolute left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-milktea-200 rounded-lg shadow-lg z-10 hidden text-sm">
@@ -431,10 +492,10 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-stone-600 mb-1" for="gift-note">備註</label>
-                            <input type="text" id="gift-note" class="w-full px-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none" placeholder="例如：公務忙碌代包、附卡片、伴手禮發放">
+                            <input type="text" id="gift-note" class="w-full px-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none" placeholder="例如：附謝卡、代領伴手禮等">
                         </div>
                         <button type="submit" class="w-full bg-coffee-500 hover:bg-coffee-600 text-white font-medium py-2.5 px-4 rounded-lg shadow-sm hover:shadow transition-all text-sm">
-                            <i class="fa-solid fa-plus-circle mr-1"></i>登錄禮金
+                            <i class="fa-solid fa-plus-circle mr-1"></i>登錄禮金並報到
                         </button>
                     </form>
                 </div>
@@ -491,8 +552,8 @@
                         <div>
                             <label class="block text-xs font-semibold text-stone-600 mb-1" for="parking-guest-name">登記人/賓客姓名</label>
                             <div class="relative">
-                                <input type="text" id="parking-guest-name" required oninput="suggestParkingGuests()" class="w-full px-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none" placeholder="請輸入姓名（會與喜帖名單智慧比對）">
-                                <div id="parking-guest-suggestions" class="absolute left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-milktea-200 rounded-lg shadow-lg z-20 hidden text-sm">
+                                <input type="text" id="parking-guest-name" required oninput="suggestParkingGuests()" class="w-full px-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none" placeholder="請輸入姓名">
+                                <div id="parking-guest-suggestions" class="absolute left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-milktea-200 rounded-lg shadow-lg z-10 hidden text-sm">
                                     <!-- 動態比對建議名單 -->
                                 </div>
                             </div>
@@ -552,10 +613,10 @@
             <!-- 視窗標題 -->
             <div class="flex justify-between items-start mb-4 border-b border-stone-100 pb-3">
                 <div class="flex-1 mr-4">
-                    <label class="block text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">編輯桌名</label>
+                    <label id="modal-table-name-label" class="block text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">編輯桌名</label>
                     <input type="text" id="modal-table-name" class="text-lg font-bold text-coffee-800 border-b border-dashed border-milktea-300 hover:border-coffee-500 focus:border-coffee-500 focus:outline-none focus:ring-0 w-full mb-3" value="A1 桌">
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-4" id="modal-table-controls">
                         <div>
                             <label class="block text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-1">長桌座位數上限</label>
                             <input type="number" id="modal-table-capacity-input" min="1" max="30" class="w-full px-2 py-1 text-sm border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 focus:border-coffee-500 outline-none">
@@ -578,10 +639,10 @@
                     </div>
                 </div>
 
-                <hr class="border-stone-100">
+                <hr class="border-stone-100" id="modal-divider">
 
                 <!-- 快速指派新賓客到此桌 -->
-                <div>
+                <div id="modal-quick-assign-container">
                     <h4 class="text-sm font-semibold text-stone-700 mb-2"><i class="fa-solid fa-plus-circle text-coffee-500 mr-1"></i>快速指派剩餘賓客</h4>
                     <select id="modal-assign-select" onchange="assignGuestToCurrentTable()" class="w-full px-3 py-2 text-sm border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 outline-none bg-white">
                         <option value="">-- 選擇要加入此桌的賓客 --</option>
@@ -591,7 +652,7 @@
             </div>
 
             <!-- 視窗底部按鈕 -->
-            <div class="mt-6 flex space-x-3 border-t border-stone-100 pt-3 justify-end">
+            <div class="mt-6 flex space-x-3 border-t border-stone-100 pt-3 justify-end" id="modal-footer-actions">
                 <button onclick="deleteCurrentTable()" class="bg-milktea-50 text-coffee-600 hover:bg-milktea-100 text-xs font-semibold py-2 px-4 rounded-lg transition-all border border-milktea-200">
                     <i class="fa-regular fa-trash-can mr-1"></i>拆除此桌
                 </button>
@@ -601,6 +662,12 @@
             </div>
         </div>
     </div>
+
+    <!-- 賓客專屬頁尾 -->
+    <footer id="guest-footer" class="text-center py-8 text-xs text-stone-400 border-t border-stone-100 bg-white mt-12 hidden">
+        <p class="font-serif text-coffee-600 mb-1">12 hours closer</p>
+        <p>© 2027 邀請函回覆系統</p>
+    </footer>
 
     <!-- ==================== 網頁核心控制 JS ==================== -->
     <script>
@@ -621,7 +688,8 @@
                 selfDrive: "yes", 
                 carPlate: "ABC-1234",
                 wish: "恭喜新婚！期待與你們共度溫馨美好的時光！", 
-                tableId: "table-1" 
+                tableId: "table-1",
+                checkedIn: true // 預設已簽到
             },
             { 
                 id: "2", 
@@ -638,7 +706,8 @@
                 selfDrive: "no", 
                 carPlate: "",
                 wish: "最美的婚禮！恭喜你們！", 
-                tableId: "table-1" 
+                tableId: "table-1",
+                checkedIn: false
             },
             { 
                 id: "3", 
@@ -654,7 +723,8 @@
                 selfDrive: "yes", 
                 carPlate: "W-5566",
                 wish: "兄弟恭喜了，成家立業！", 
-                tableId: "table-2" 
+                tableId: "table-2",
+                checkedIn: false
             },
             { 
                 id: "4", 
@@ -670,7 +740,8 @@
                 selfDrive: "no", 
                 carPlate: "",
                 wish: "永遠幸福美麗！", 
-                tableId: "table-2" 
+                tableId: "table-2",
+                checkedIn: false
             }
         ];
 
@@ -682,22 +753,139 @@
         ];
 
         let gifts = [
-            { id: "g1", giver: "王大明", amount: 3600, note: "已到場，男方親戚" },
-            { id: "g2", giver: "林小華", amount: 2600, note: "已到場，女方朋友" },
-            { id: "g3", giver: "張志豪", amount: 3200, note: "已到場，男方同梯" }
+            { id: "g1", giver: "王大明", amount: 3600, note: "已到場，男方親戚" }
         ];
 
         let activeTableId = ""; // 目前正在彈出視窗中編輯的桌號
+        let isAdminLoggedIn = false; // 是否已解鎖後台
 
-        // ------------------ 初始化載入 ------------------
+        // ------------------ 系統門禁與模式解析 ------------------
         window.addEventListener('DOMContentLoaded', () => {
+            // 解析 URL 參數
+            const urlParams = new URLSearchParams(window.location.search);
+            const isGuestMode = urlParams.get('mode') === 'guest';
+            const isSeatingMode = urlParams.get('mode') === 'seating';
+
+            if (isSeatingMode) {
+                // 座位配置模式 (供親友或餐廳工作人員唯讀查看)
+                document.getElementById('admin-navbar').classList.add('hidden');
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('guest-header-hint').classList.add('hidden');
+                document.getElementById('guest-footer').classList.remove('hidden');
+                
+                // 開啟座位配置並隱藏其他非必要視圖
+                document.getElementById('main-container').classList.remove('hidden');
+                switchTab('seating');
+                
+                // 隱藏導覽按鈕
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.add('hidden'));
+                
+                // 隱藏待分配名單，直接將長桌座位圖拉到滿寬
+                document.getElementById('unassigned-guests-sidebar').classList.add('hidden');
+                document.getElementById('seating-main-map').classList.remove('lg:w-3/4');
+                document.getElementById('seating-main-map').classList.add('w-full');
+                
+                // 隱藏管理按鈕 (新增、自動排座、複製連結等)
+                document.getElementById('seating-admin-buttons').classList.add('hidden');
+                
+                // 調整說明文字，加上唯讀提示
+                const descText = document.querySelector('#seating-main-map h3 + p');
+                if (descText) {
+                    descText.innerHTML = `<span class="text-coffee-600 font-semibold"><i class="fa-solid fa-circle-info mr-1"></i> 唯讀席位圖模式：</span> 本頁面供賓客及餐廳出餐人員核對出餐與座位。點擊長桌可展開查看該桌賓客與餐點備註。`;
+                }
+            } else if (isGuestMode) {
+                // 賓客模式：直接強制進入出席表單，且隱藏所有後台資訊
+                document.getElementById('admin-navbar').classList.add('hidden');
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('guest-header-hint').classList.remove('hidden');
+                document.getElementById('guest-footer').classList.remove('hidden');
+                
+                // 只開啟 RSVP 分頁，其他介面全部不可見
+                document.getElementById('main-container').classList.remove('hidden');
+                switchTab('rsvp');
+                // 隱藏 RSVP 分頁外的所有內容
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.add('hidden'));
+                document.getElementById('btn-rsvp').classList.remove('hidden');
+                document.getElementById('btn-rsvp').classList.add('pointer-events-none');
+            } else {
+                // 管理員模式：需要輸入密碼
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('admin-navbar').classList.add('hidden');
+                document.getElementById('main-container').classList.add('hidden');
+            }
+
             generateMealInputs(); // 初始化 RSVP 表單首位餐點
-            updateDashboard();    // 更新儀表板統計
-            renderTableGrid();    // 渲染座位配置圖
-            renderUnassignedGuests(); // 渲染待排座名單
-            renderGiftLedger();   // 渲染禮金簿
-            renderParkingLedger(); // 渲染車牌登記名單
         });
+
+        // 管理員密碼驗證 (預設密碼：0307)
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const password = document.getElementById('admin-password').value;
+            if (password === '0307') {
+                isAdminLoggedIn = true;
+                showToast("解鎖成功！歡迎進入 12 hours closer 後台", "success");
+                
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('admin-navbar').classList.remove('hidden');
+                document.getElementById('main-container').classList.remove('hidden');
+                
+                // 恢復顯示所有的導覽按鈕
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('hidden'));
+                
+                // 預設進入儀表板
+                switchTab('dashboard');
+                updateDashboard();
+                renderTableGrid();
+                renderUnassignedGuests();
+                renderGiftLedger();
+                renderParkingLedger();
+            } else {
+                showToast("密碼錯誤，請重新輸入 (預設為婚禮日期)", "error");
+            }
+        }
+
+        function lockAdminConsole() {
+            isAdminLoggedIn = false;
+            document.getElementById('admin-password').value = '';
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('admin-navbar').classList.add('hidden');
+            document.getElementById('main-container').classList.add('hidden');
+            showToast("已安全退出管理後台", "info");
+        }
+
+        function forceGuestView() {
+            // 切換成臨時賓客視圖
+            window.location.search = '?mode=guest';
+        }
+
+        // 複製賓客專屬 RSVP 連結給新人
+        function copyGuestLink() {
+            const cleanUrl = window.location.origin + window.location.pathname + '?mode=guest';
+            
+            // 複製到剪貼簿 (相容 iFrame 環境)
+            const tempInput = document.createElement("input");
+            tempInput.value = cleanUrl;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast("賓客專屬回覆連結已複製！您可以直接傳給親友。", "success");
+        }
+
+        // 複製唯讀座位配置分享連結
+        function copySeatingLink() {
+            const cleanUrl = window.location.origin + window.location.pathname + '?mode=seating';
+            
+            const tempInput = document.createElement("input");
+            tempInput.value = cleanUrl;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast("座位配置分享連結已複製！可提供給賓客或餐廳服務人員。", "success");
+        }
 
         // ------------------ 分頁切換 ------------------
         function switchTab(tabName) {
@@ -772,15 +960,37 @@
             }
         }
 
+        // ------------------ 當日手動報到勾選變更 ------------------
+        function toggleGuestCheckIn(guestId, isChecked) {
+            const guest = guests.find(g => g.id === guestId);
+            if (guest) {
+                guest.checkedIn = isChecked;
+                showToast(`${guest.name} 報到狀態已變更！`, "success");
+                updateDashboard();
+            }
+        }
+
         // ------------------ 儀表板計算 ------------------
         function updateDashboard() {
             const attendingGuests = guests.filter(g => g.attendance === 'yes');
             
-            // 計算出席人數
+            // 1. 計算預計出席總人數
             const totalAttendance = attendingGuests.reduce((sum, g) => sum + parseInt(g.count), 0);
             document.getElementById('stat-attendance-total').innerHTML = `${totalAttendance} <span class="text-sm font-normal text-stone-500">人</span>`;
 
-            // 計算精緻主餐餐點分佈
+            // 2. 計算「已報到」總人數 (checkedIn === true 的人數加總)
+            const checkedInCount = attendingGuests
+                .filter(g => g.checkedIn === true)
+                .reduce((sum, g) => sum + parseInt(g.count), 0);
+            
+            document.getElementById('stat-checkin-progress').innerHTML = `${checkedInCount} / ${totalAttendance} <span class="text-sm font-normal text-stone-500">人</span>`;
+
+            // 3. 計算簽到進度百分比
+            const checkinPercent = totalAttendance > 0 ? Math.round((checkedInCount / totalAttendance) * 100) : 0;
+            document.getElementById('stat-checkin-percent').innerText = `${checkinPercent}%`;
+            document.getElementById('stat-checkin-bar').style.width = `${checkinPercent}%`;
+
+            // 4. 計算主餐分佈
             let ribeyeCount = 0;
             let lambCount = 0;
             let seafoodCount = 0;
@@ -799,38 +1009,52 @@
                 }
             });
             document.getElementById('stat-meal-summary').innerHTML = `
-                <span class="inline-block mr-3">🥩牛排: <strong class="text-coffee-800 text-base">${ribeyeCount}</strong></span>
+                <span class="inline-block mr-3">🥩牛肋排: <strong class="text-coffee-800 text-base">${ribeyeCount}</strong></span>
                 <span class="inline-block mr-3">🐑羊排: <strong class="text-coffee-800 text-base">${lambCount}</strong></span>
                 <span class="inline-block mr-3">🐟鮮魚: <strong class="text-coffee-800 text-base">${seafoodCount}</strong></span>
                 <span class="inline-block mr-3">🥗素食: <strong class="text-coffee-800 text-base">${vegCount}</strong></span>
                 <span class="inline-block">👶兒童: <strong class="text-coffee-800 text-base">${kidCount}</strong></span>
             `;
 
-            // 計算禮金
+            // 5. 計算禮金
             const totalGifts = gifts.reduce((sum, g) => sum + parseInt(g.amount), 0);
             document.getElementById('stat-gift-total').innerText = `$${totalGifts.toLocaleString()}`;
 
-            // 座位排定進度與百分比
-            const assignedCount = attendingGuests.filter(g => g.tableId && g.tableId !== "").reduce((sum, g) => sum + parseInt(g.count), 0);
-            document.getElementById('stat-seating-progress').innerHTML = `${assignedCount} / ${totalAttendance} <span class="text-sm font-normal text-stone-500">人</span>`;
-            
-            const seatingPercent = totalAttendance > 0 ? Math.round((assignedCount / totalAttendance) * 100) : 0;
-            document.getElementById('stat-seating-percent').innerText = `${seatingPercent}%`;
-            document.getElementById('stat-seating-bar').style.width = `${seatingPercent}%`;
-
-            // 最新出席登記表單渲染 (最新4筆)
+            // 6. 渲染出席/簽到名單
             const summaryTable = document.getElementById('rsvp-summary-table');
             summaryTable.innerHTML = '';
             
-            const recentGuests = [...guests].reverse().slice(0, 4);
+            // 讀取搜尋關鍵字
+            const searchInput = document.getElementById('attendance-search');
+            const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            // 倒序排列，讓新登記者排在前面
+            const recentGuests = [...guests].reverse();
             recentGuests.forEach(g => {
+                // 找出桌子名稱
+                const tableObj = tables.find(t => t.id === g.tableId);
+                const tableName = tableObj ? tableObj.name : "未排座";
+                const transportText = g.selfDrive === "yes" ? `開車 (${g.carPlate || '未填'})` : "大眾運輸";
+
+                // 動態搜尋過濾
+                if (searchQuery) {
+                    const matchesName = g.name.toLowerCase().includes(searchQuery);
+                    const matchesPhone = g.phone && g.phone.toLowerCase().includes(searchQuery);
+                    const matchesRelation = g.relation && g.relation.toLowerCase().includes(searchQuery);
+                    const matchesTable = tableName.toLowerCase().includes(searchQuery);
+                    const matchesPlate = g.carPlate && g.carPlate.toLowerCase().includes(searchQuery);
+                    if (!matchesName && !matchesPhone && !matchesRelation && !matchesTable && !matchesPlate) {
+                        return; // 若都不相符則跳過不顯示
+                    }
+                }
+
                 let statusBadge = '';
                 if (g.attendance === 'yes') {
-                    statusBadge = `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs rounded-full">受邀出席</span>`;
+                    statusBadge = `<span class="px-2 py-0.5 bg-milktea-100 text-coffee-700 text-[10px] rounded-full">受邀出席</span>`;
                 } else if (g.attendance === 'gift-only') {
-                    statusBadge = `<span class="px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full">禮到人不到</span>`;
+                    statusBadge = `<span class="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] rounded-full">禮到人不到</span>`;
                 } else {
-                    statusBadge = `<span class="px-2 py-0.5 bg-stone-100 text-stone-500 text-xs rounded-full">不克出席</span>`;
+                    statusBadge = `<span class="px-2 py-0.5 bg-stone-100 text-stone-500 text-[10px] rounded-full">不克出席</span>`;
                 }
 
                 // 組合詳細餐點顯示文字
@@ -850,27 +1074,33 @@
                     }).join('<br>');
                 }
 
-                const transportText = g.selfDrive === "yes" ? `開車 (${g.carPlate || '未填'})` : "大眾運輸";
+                // 簽到核取方塊 (如果是 yes 出席，則允許簽到)
+                const checkInCheckbox = g.attendance === 'yes' 
+                    ? `<input type="checkbox" onchange="toggleGuestCheckIn('${g.id}', this.checked)" ${g.checkedIn ? 'checked' : ''} class="w-4 h-4 rounded text-coffee-600 focus:ring-coffee-500 border-stone-300">`
+                    : `<span class="text-stone-300 text-xs">無需</span>`;
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-stone-50 text-xs";
+                tr.className = `hover:bg-stone-50 text-xs ${g.checkedIn ? 'bg-emerald-50/20' : ''}`;
                 tr.innerHTML = `
-                    <td class="px-4 py-3 font-semibold text-stone-700">${escapeHtml(g.name)}</td>
+                    <td class="px-4 py-3 text-center">${checkInCheckbox}</td>
+                    <td class="px-4 py-3 font-semibold text-stone-700">
+                        <div>${escapeHtml(g.name)}</div>
+                        <div class="text-[10px] text-stone-400 font-normal sm:hidden">${g.phone || ''}</div>
+                    </td>
                     <td class="px-4 py-3">${statusBadge}</td>
                     <td class="px-4 py-3 font-medium">
-                        <div>${g.count} 人</div>
+                        <div>${g.count} 人 / <span class="text-coffee-600 font-semibold">${tableName}</span></div>
                         <div class="text-[10px] text-stone-400 mt-0.5"><i class="fa-solid fa-car mr-1 text-coffee-300"></i>${transportText}</div>
                     </td>
                     <td class="px-4 py-3 text-stone-600 leading-relaxed">${mealDetailsText}</td>
-                    <td class="px-4 py-3 text-stone-500">${g.relation}</td>
                     <td class="px-4 py-3">
-                        <button onclick="deleteGuest('${g.id}')" class="text-coffee-600 hover:text-coffee-800 text-xs"><i class="fa-solid fa-trash-can"></i></button>
+                        <button onclick="deleteGuest('${g.id}')" class="text-stone-400 hover:text-rose-600 text-xs" title="刪除賓客"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 `;
                 summaryTable.appendChild(tr);
             });
 
-            // 渲染祝福牆
+            // 7. 渲染祝福牆
             const wishesWall = document.getElementById('wishes-wall');
             wishesWall.innerHTML = '';
             const wishingGuests = guests.filter(g => g.wish && g.wish.trim() !== "").reverse();
@@ -1061,7 +1291,8 @@
                 selfDrive,
                 carPlate,
                 wish,
-                tableId: ""
+                tableId: "",
+                checkedIn: false // 新登記預設未簽到
             };
 
             guests.push(newGuest);
@@ -1074,8 +1305,16 @@
             toggleCarPlateInput(false);
             generateMealInputs();
 
-            updateDashboard();
-            switchTab('dashboard');
+            // 若非賓客模式，才更新儀表板
+            const urlParams = new URLSearchParams(window.location.search);
+            const isGuestMode = urlParams.get('mode') === 'guest';
+            
+            if (isGuestMode) {
+                alert(`親愛的 ${name}，我們已成功收到您的婚禮出席回覆！期待 2027.03.07 於台北勞瑞斯牛肋排餐廳與您相聚！`);
+            } else {
+                updateDashboard();
+                switchTab('dashboard');
+            }
         }
 
         function deleteGuest(id) {
@@ -1157,7 +1396,7 @@
             const unassigned = guests.filter(g => g.attendance === 'yes' && (!g.tableId || g.tableId === ''));
 
             if (unassigned.length === 0) {
-                listContainer.innerHTML = `<div class="text-xs text-stone-400 text-center py-6 bg-stone-50 rounded-lg">🎉 所有賓客皆已入座長桌！</div>`;
+                listContainer.innerHTML = `<div class="text-xs text-stone-400 text-center py-6 bg-stone-50 rounded-lg">🎉 所有賓客皆已安排長桌座位！</div>`;
                 return;
             }
 
@@ -1300,12 +1539,43 @@
             const table = tables.find(t => t.id === tableId);
             if (!table) return;
 
-            document.getElementById('modal-table-name').value = table.name;
-            document.getElementById('modal-table-capacity-input').value = table.capacity;
+            // 判斷是否為唯讀座位查詢模式
+            const urlParams = new URLSearchParams(window.location.search);
+            const isSeatingReadOnly = urlParams.get('mode') === 'seating';
+
+            if (isSeatingReadOnly) {
+                // 唯讀模式
+                document.getElementById('modal-table-name').value = table.name;
+                document.getElementById('modal-table-name').readOnly = true;
+                document.getElementById('modal-table-name').classList.add('pointer-events-none', 'border-none', 'bg-transparent');
+                document.getElementById('modal-table-name-label').innerText = "桌名";
+                
+                document.getElementById('modal-table-controls').classList.add('hidden');
+                document.getElementById('modal-divider').classList.add('hidden');
+                document.getElementById('modal-quick-assign-container').classList.add('hidden');
+                document.getElementById('modal-footer-actions').classList.add('hidden');
+            } else {
+                // 編輯模式
+                document.getElementById('modal-table-name').value = table.name;
+                document.getElementById('modal-table-name').readOnly = false;
+                document.getElementById('modal-table-name').classList.remove('pointer-events-none', 'border-none', 'bg-transparent');
+                document.getElementById('modal-table-name-label').innerText = "編輯桌名";
+
+                document.getElementById('modal-table-capacity-input').value = table.capacity;
+                document.getElementById('modal-table-capacity').innerText = `目前入座人數：0 / ${table.capacity}`;
+                
+                document.getElementById('modal-table-controls').classList.remove('hidden');
+                document.getElementById('modal-divider').classList.remove('hidden');
+                document.getElementById('modal-quick-assign-container').classList.remove('hidden');
+                document.getElementById('modal-footer-actions').classList.remove('hidden');
+            }
             
             const assigned = guests.filter(g => g.tableId === tableId);
             const currentCount = assigned.reduce((sum, g) => sum + parseInt(g.count), 0);
-            document.getElementById('modal-table-capacity').innerText = `目前入座人數：${currentCount} / ${table.capacity}`;
+            
+            if (!isSeatingReadOnly) {
+                document.getElementById('modal-table-capacity').innerText = `目前入座人數：${currentCount} / ${table.capacity}`;
+            }
 
             const guestsContainer = document.getElementById('modal-table-guests');
             guestsContainer.innerHTML = '';
@@ -1340,6 +1610,11 @@
                         `;
                     }).join('');
 
+                    // 唯讀模式下不顯示「移出長桌」按鈕
+                    const actionBtnHtml = isSeatingReadOnly 
+                        ? '' 
+                        : `<button onclick="removeGuestFromTable('${g.id}')" class="text-coffee-600 hover:text-coffee-800 text-xs font-semibold"><i class="fa-solid fa-user-minus mr-1"></i> 移出長桌</button>`;
+
                     const div = document.createElement('div');
                     div.className = "bg-stone-50 p-3 rounded-xl border border-stone-200 flex flex-col space-y-2";
                     div.innerHTML = `
@@ -1348,7 +1623,7 @@
                                 <span class="font-bold text-stone-800 text-sm">${escapeHtml(g.name)}</span>
                                 <span class="text-[10px] text-stone-400 ml-1.5">(${g.count}人, ${g.relation})</span>
                             </div>
-                            <button onclick="removeGuestFromTable('${g.id}')" class="text-coffee-600 hover:text-coffee-800 text-xs font-semibold"><i class="fa-solid fa-user-minus mr-1"></i> 移出長桌</button>
+                            ${actionBtnHtml}
                         </div>
                         <div class="bg-white p-2 rounded-lg border border-stone-100 space-y-1">
                             ${mealsHtml}
@@ -1358,15 +1633,17 @@
                 });
             }
 
-            const assignSelect = document.getElementById('modal-assign-select');
-            assignSelect.innerHTML = '<option value="">-- 選擇要加入此長桌的賓客 --</option>';
-            const unassigned = guests.filter(g => g.attendance === 'yes' && (!g.tableId || g.tableId === ''));
-            unassigned.forEach(g => {
-                const opt = document.createElement('option');
-                opt.value = g.id;
-                opt.innerText = `${g.name} (${g.count}人 - ${g.relation})`;
-                assignSelect.appendChild(opt);
-            });
+            if (!isSeatingReadOnly) {
+                const assignSelect = document.getElementById('modal-assign-select');
+                assignSelect.innerHTML = '<option value="">-- 選擇要加入此長桌的賓客 --</option>';
+                const unassigned = guests.filter(g => g.attendance === 'yes' && (!g.tableId || g.tableId === ''));
+                unassigned.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.id;
+                    opt.innerText = `${g.name} (${g.count}人 - ${g.relation})`;
+                    assignSelect.appendChild(opt);
+                });
+            }
 
             document.getElementById('table-edit-modal').classList.add('modal-active');
         }
@@ -1450,27 +1727,72 @@
                 return;
             }
 
-            const matches = guests.filter(g => g.name.toLowerCase().includes(inputVal));
+            // 支援姓名、電話、賓客關係的多重模糊比對
+            const matches = guests.filter(g => 
+                g.name.toLowerCase().includes(inputVal) || 
+                (g.phone && g.phone.includes(inputVal)) || 
+                (g.relation && g.relation.toLowerCase().includes(inputVal))
+            );
             
             if (matches.length === 0) {
-                suggestionBox.classList.add('hidden');
+                suggestionBox.classList.remove('hidden');
+                suggestionBox.innerHTML = `
+                    <div class="px-4 py-3 text-xs text-stone-400 text-center italic">
+                        無相符的已登記賓客，將作為「現場非預期賓客」登錄
+                    </div>
+                `;
                 return;
             }
 
             suggestionBox.classList.remove('hidden');
             matches.forEach(m => {
+                const tableObj = tables.find(t => t.id === m.tableId);
+                const tableName = tableObj ? tableObj.name : "未排座";
+                
                 const div = document.createElement('div');
-                div.className = "px-4 py-2 hover:bg-stone-50 cursor-pointer text-stone-700 transition-all border-b border-stone-100 last:border-0";
-                div.innerText = `${m.name} (${m.relation})`;
+                div.className = "px-4 py-2.5 hover:bg-milktea-50/70 cursor-pointer text-stone-700 transition-all border-b border-stone-100 last:border-0 text-xs flex justify-between items-center";
+                div.innerHTML = `
+                    <div>
+                        <div class="font-bold text-coffee-800">
+                            ${escapeHtml(m.name)} 
+                            <span class="text-[10px] font-normal text-stone-500 bg-stone-100 rounded px-1 ml-1">${m.relation}</span>
+                        </div>
+                        <div class="text-[10px] text-stone-400 mt-0.5">
+                            <i class="fa-solid fa-phone mr-1"></i>${m.phone || '無電話'} | 
+                            <i class="fa-solid fa-chair mr-1"></i>${tableName}
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] bg-coffee-100 text-coffee-700 font-semibold px-2 py-0.5 rounded-full">${m.count}人</span>
+                    </div>
+                `;
+                
                 div.onclick = () => {
                     document.getElementById('gift-giver').value = m.name;
-                    document.getElementById('gift-note').value = `${m.relation}，出席人數：${m.count}人`;
+                    document.getElementById('gift-note').value = `${m.relation}，桌位：${tableName}，共 ${m.count} 人`;
                     suggestionBox.classList.add('hidden');
+                    showToast(`已成功連結已登記賓客 [${m.name}] 的資訊與桌號！`, "success");
                 };
                 suggestionBox.appendChild(div);
             });
         }
 
+        // 點擊空白處，自動關閉聯想建議框
+        document.addEventListener('click', (e) => {
+            const suggestionBox = document.getElementById('giver-suggestions');
+            const giverInput = document.getElementById('gift-giver');
+            if (suggestionBox && e.target !== giverInput && !suggestionBox.contains(e.target)) {
+                suggestionBox.classList.add('hidden');
+            }
+            
+            const parkingSuggestionBox = document.getElementById('parking-guest-suggestions');
+            const parkingInput = document.getElementById('parking-guest-name');
+            if (parkingSuggestionBox && e.target !== parkingInput && !parkingSuggestionBox.contains(e.target)) {
+                parkingSuggestionBox.classList.add('hidden');
+            }
+        });
+
+        // 禮金登記（自動幫該來賓勾選簽到狀態）
         function handleGiftSubmit(e) {
             e.preventDefault();
             const giver = document.getElementById('gift-giver').value.trim();
@@ -1490,7 +1812,15 @@
             };
 
             gifts.push(newGift);
-            showToast(`成功登入！感謝 ${giver} 贈禮 TWD ${amount}`, 'success');
+
+            // 自動將賓客名冊中姓名相符的人標記為「已到場報到」
+            const matchedGuest = guests.find(g => g.name === giver && g.attendance === 'yes');
+            if (matchedGuest) {
+                matchedGuest.checkedIn = true;
+                showToast(`成功登入！感謝 ${giver} 贈禮 TWD ${amount}，並自動完成報到簽到！`, 'success');
+            } else {
+                showToast(`成功登入！已收取現場非預期賓客 ${giver} 禮金 TWD ${amount}`, 'success');
+            }
             
             document.getElementById('gift-form').reset();
             document.getElementById('giver-suggestions').classList.add('hidden');
@@ -1623,7 +1953,8 @@
                     selfDrive: "yes",
                     carPlate: plate,
                     wish: "",
-                    tableId: ""
+                    tableId: "",
+                    checkedIn: true // 現場登記直接標記已簽到
                 };
                 guests.push(newGuest);
                 showToast(`已為您（現場親友：${name}）建立折抵並綁定車牌：${plate}`, 'success');
@@ -1645,7 +1976,7 @@
 
             const filteredParking = drivingGuests.filter(g => g.name.toLowerCase().includes(searchVal) || g.carPlate.toLowerCase().includes(searchVal));
 
-            document.getElementById('parking-list-stat').innerText = `目前已登記車輛：${filteredParking.length} 輛`;
+            document.getElementById('parking-list-stat').innerText = `已登記：${filteredParking.length} 輛車`;
 
             if (filteredParking.length === 0) {
                 tableBody.innerHTML = `
