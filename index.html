@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -160,6 +161,19 @@
                 </div>
             </div>
 
+            <!-- 表單歡迎訊息設定 -->
+            <div class="bg-white p-4 rounded-xl border border-milktea-100 shadow-sm flex flex-col lg:flex-row items-start lg:items-end gap-3">
+                <div class="flex-1 w-full">
+                    <label class="block text-xs font-semibold text-coffee-700 mb-1" for="welcome-message-input">
+                        <i class="fa-solid fa-message mr-1"></i>表單歡迎訊息
+                    </label>
+                    <input type="text" id="welcome-message-input" class="w-full px-3 py-2 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none" placeholder="請輸入顯示在 RSVP 表單上方的訊息">
+                </div>
+                <button onclick="saveWelcomeMessage()" class="w-full lg:w-auto bg-coffee-600 hover:bg-coffee-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition-all shadow-sm">
+                    <i class="fa-solid fa-floppy-disk mr-1.5"></i>儲存訊息
+                </button>
+            </div>
+
             <!-- 第一排：出席與報到進度 (3欄版面) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- 預計出席總人數 -->
@@ -273,7 +287,7 @@
                 <div class="milktea-gradient p-8 text-center border-b border-milktea-200">
                     <span class="text-coffee-600 text-xs uppercase tracking-widest font-semibold block mb-2">RSVP FORM</span>
                     <h2 class="font-serif text-2xl font-bold text-coffee-800">出席意願與餐點統計表</h2>
-                    <p class="text-coffee-600 text-xs mt-2">請完成填寫，以利我們安排座位與餐點 </p>
+                    <p id="rsvp-welcome-message" class="text-coffee-600 text-xs mt-2">請完成填寫，以利我們安排座位與餐點 </p>
                 </div>
                 
                 <form id="rsvp-form" onsubmit="handleRSVPSubmit(event)" class="p-8 space-y-6">
@@ -758,9 +772,82 @@
 
         let activeTableId = ""; // 目前正在彈出視窗中編輯的桌號
         let isAdminLoggedIn = false; // 是否已解鎖後台
+        let appSettings = {
+            welcomeMessage: "請完成填寫，以利我們安排座位與餐點"
+        };
+
+        const STORAGE_KEY = "twelve_hours_closer_wedding_data_v1";
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (!saved) return;
+
+                const state = JSON.parse(saved);
+                if (Array.isArray(state.guests)) guests = state.guests;
+                if (Array.isArray(state.tables)) tables = state.tables;
+                if (Array.isArray(state.gifts)) gifts = state.gifts;
+                if (state.appSettings && typeof state.appSettings === "object") {
+                    appSettings = { ...appSettings, ...state.appSettings };
+                }
+            } catch (error) {
+                console.warn("讀取本機儲存資料失敗，將使用預設資料。", error);
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    guests,
+                    tables,
+                    gifts,
+                    appSettings
+                }));
+            } catch (error) {
+                console.warn("儲存本機資料失敗。", error);
+                showToast("資料儲存失敗，請確認瀏覽器允許本機儲存。", "error");
+            }
+        }
+
+        function applySettingsToUI() {
+            const welcomeMessage = appSettings.welcomeMessage || "請完成填寫，以利我們安排座位與餐點";
+            const welcomeText = document.getElementById("rsvp-welcome-message");
+            const welcomeInput = document.getElementById("welcome-message-input");
+
+            if (welcomeText) welcomeText.innerText = welcomeMessage;
+            if (welcomeInput) welcomeInput.value = welcomeMessage;
+        }
+
+        function saveWelcomeMessage() {
+            const input = document.getElementById("welcome-message-input");
+            const nextMessage = input.value.trim();
+
+            if (!nextMessage) {
+                showToast("表單歡迎訊息不可空白。", "error");
+                input.focus();
+                return;
+            }
+
+            appSettings.welcomeMessage = nextMessage;
+            applySettingsToUI();
+            saveState();
+            showToast("表單歡迎訊息已更新。", "success");
+        }
+
+        function refreshAllViews() {
+            applySettingsToUI();
+            updateDashboard();
+            renderTableGrid();
+            renderUnassignedGuests();
+            renderGiftLedger();
+            renderParkingLedger();
+        }
 
         // ------------------ 系統門禁與模式解析 ------------------
         window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            applySettingsToUI();
+
             // 解析 URL 參數
             const urlParams = new URLSearchParams(window.location.search);
             const isGuestMode = urlParams.get('mode') === 'guest';
@@ -965,6 +1052,7 @@
             const guest = guests.find(g => g.id === guestId);
             if (guest) {
                 guest.checkedIn = isChecked;
+                saveState();
                 showToast(`${guest.name} 報到狀態已變更！`, "success");
                 updateDashboard();
             }
@@ -1177,8 +1265,8 @@
                             <label class="block text-xs font-semibold text-stone-600 mb-1" for="doneness-${i}">牛排熟度限制 <span class="text-coffee-500">*</span></label>
                             <select id="doneness-${i}" class="w-full px-3 py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none bg-white">
                                 <option value="">-- 請選擇熟度 --</option>
-                                <option value="3分熟">3分熟</option>
-                                <option value="5分熟">5分熟(建議）</option>
+                                <option value="3分熟">3分熟 (建議)</option>
+                                <option value="5分熟">5分熟</option>
                                 <option value="7分熟">7分熟</option>
                             </select>
                         </div>
@@ -1296,6 +1384,7 @@
             };
 
             guests.push(newGuest);
+            saveState();
             showToast(`成功！感謝 ${name} 的回覆與登記`, 'success');
             
             // 重置表單
@@ -1319,9 +1408,14 @@
 
         function deleteGuest(id) {
             if (confirm("您確定要刪除這筆賓客登記紀錄嗎？相關桌位與禮金設定需要一併調整。")) {
+                const deletedGuest = guests.find(g => g.id === id);
                 guests = guests.filter(g => g.id !== id);
+                if (deletedGuest) {
+                    gifts = gifts.filter(g => g.giver !== deletedGuest.name);
+                }
+                saveState();
                 showToast("成功刪除該筆賓客紀錄", "success");
-                updateDashboard();
+                refreshAllViews();
             }
         }
 
@@ -1484,6 +1578,7 @@
                     }
                 }
                 guest.tableId = tableId;
+                saveState();
                 showToast(`已將 ${guest.name} 分配至 ${table.name}`, 'success');
                 renderTableGrid();
                 renderUnassignedGuests();
@@ -1513,6 +1608,7 @@
             });
 
             if (countAssigned > 0) {
+                saveState();
                 showToast(`成功為 ${countAssigned} 組賓客自動排配長桌座位！`, "success");
                 renderTableGrid();
                 renderUnassignedGuests();
@@ -1529,6 +1625,7 @@
                 capacity: 8
             };
             tables.push(newTbl);
+            saveState();
             showToast(`已新增：${newTbl.name} (容量上限 8 席)`, 'success');
             renderTableGrid();
         }
@@ -1666,6 +1763,7 @@
                 if (!isNaN(newCapacity) && newCapacity > 0) {
                     table.capacity = newCapacity;
                 }
+                saveState();
                 showToast("長桌座位與設定資訊已更新！", "success");
             }
             closeTableModal();
@@ -1675,6 +1773,7 @@
             const guest = guests.find(g => g.id === guestId);
             if (guest) {
                 guest.tableId = "";
+                saveState();
                 showToast(`已將 ${guest.name} 移出長桌`, "info");
                 openTableModal(activeTableId);
             }
@@ -1690,6 +1789,7 @@
             
             if (guest && table) {
                 guest.tableId = activeTableId;
+                saveState();
                 showToast(`已將 ${guest.name} 分配至 ${table.name}`, 'success');
                 openTableModal(activeTableId);
             }
@@ -1707,6 +1807,7 @@
                     }
                 });
                 tables = tables.filter(t => t.id !== activeTableId);
+                saveState();
                 showToast(`已成功拆除該長桌座位`, "success");
                 closeTableModal();
             }
@@ -1817,8 +1918,10 @@
             const matchedGuest = guests.find(g => g.name === giver && g.attendance === 'yes');
             if (matchedGuest) {
                 matchedGuest.checkedIn = true;
+                saveState();
                 showToast(`成功登入！感謝 ${giver} 贈禮 TWD ${amount}，並自動完成報到簽到！`, 'success');
             } else {
+                saveState();
                 showToast(`成功登入！已收取現場非預期賓客 ${giver} 禮金 TWD ${amount}`, 'success');
             }
             
@@ -1866,6 +1969,7 @@
         function deleteGiftItem(id) {
             if (confirm("您確定要刪除這筆禮金記錄嗎？統計數額將立即調回。")) {
                 gifts = gifts.filter(g => g.id !== id);
+                saveState();
                 showToast("禮金帳目已成功刪除！", "success");
                 renderGiftLedger();
                 updateDashboard();
@@ -1960,6 +2064,8 @@
                 showToast(`已為您（現場親友：${name}）建立折抵並綁定車牌：${plate}`, 'success');
             }
 
+            saveState();
+
             document.getElementById('parking-self-form').reset();
             document.getElementById('parking-guest-suggestions').classList.add('hidden');
             
@@ -2009,6 +2115,7 @@
                 if (confirm(`確定要移除 ${guest.name} 的車牌登記嗎？`)) {
                     guest.selfDrive = "no";
                     guest.carPlate = "";
+                    saveState();
                     showToast("已成功移除該車牌折抵登記！", "success");
                     renderParkingLedger();
                     updateDashboard();
