@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -777,6 +778,41 @@
         };
 
         const STORAGE_KEY = "twelve_hours_closer_wedding_data_v1";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMUBRAeVyaF3Ky16BjmSY1c-zgruJEurPZPllPGVBF_vBlRPqrMvlONw2k2NMIyHmE/exec";
+        const ENABLE_GOOGLE_SHEET_SYNC = GOOGLE_SCRIPT_URL.includes("script.google.com");
+
+        async function api(action, payload = {}) {
+            if (!ENABLE_GOOGLE_SHEET_SYNC) {
+                return { ok: false, error: "Google Sheet API 尚未設定" };
+            }
+
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action, ...payload })
+                });
+                return await res.json();
+            } catch (error) {
+                console.warn("Google Sheet 同步失敗，暫時使用本機資料。", error);
+                return { ok: false, error: error.message || String(error) };
+            }
+        }
+
+        async function loadGuestsFromSheet() {
+            const result = await api("listGuests");
+            if (!result.ok || !Array.isArray(result.guests)) return false;
+
+            guests = result.guests.map(g => ({
+                ...g,
+                id: String(g.id),
+                count: parseInt(g.count, 10) || 0,
+                babyChairs: parseInt(g.babyChairs, 10) || 0,
+                checkedIn: g.checkedIn === true || g.checkedIn === "TRUE" || g.checkedIn === "true",
+                meals: Array.isArray(g.meals) ? g.meals : []
+            }));
+            saveState();
+            return true;
+        }
 
         function loadState() {
             try {
@@ -905,7 +941,7 @@
         });
 
         // 管理員密碼驗證 (預設密碼：0307)
-        function handleAdminLogin(e) {
+        async function handleAdminLogin(e) {
             e.preventDefault();
             const password = document.getElementById('admin-password').value;
             if (password === '0307') {
@@ -920,12 +956,9 @@
                 document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('hidden'));
                 
                 // 預設進入儀表板
+                await loadGuestsFromSheet();
                 switchTab('dashboard');
-                updateDashboard();
-                renderTableGrid();
-                renderUnassignedGuests();
-                renderGiftLedger();
-                renderParkingLedger();
+                refreshAllViews();
             } else {
                 showToast("密碼錯誤，請重新輸入 (預設為婚禮日期)", "error");
             }
@@ -1319,7 +1352,7 @@
         }
 
         // 提交表單處理
-        function handleRSVPSubmit(e) {
+        async function handleRSVPSubmit(e) {
             e.preventDefault();
             const name = document.getElementById('guest-name').value.trim();
             const phone = document.getElementById('guest-phone').value.trim();
@@ -1383,19 +1416,17 @@
                 checkedIn: false // 新登記預設未簽到
             };
 
-            await api('createGuest', { guest: newGuest });
-            await loadGuestsFromSheet();
-            showToast(`成功！感謝 ${name} 的回覆與登記`, 'success');
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMUBRAeVyaF3Ky16BjmSY1c-zgruJEurPZPllPGVBF_vBlRPqrMvlONw2k2NMIyHmE/exec';
+            const result = await api('createGuest', { guest: newGuest });
+            guests.push(newGuest);
+            saveState();
 
-async function api(action, payload = {}) {
-  const res = await fetch(GOOGLE_SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action, ...payload })
-  });
+            if (result.ok) {
+                await loadGuestsFromSheet();
+                showToast(`成功！感謝 ${name} 的回覆與登記，資料已同步到 Google Sheet`, 'success');
+            } else {
+                showToast(`已先儲存在本機；Google Sheet 同步失敗，請稍後檢查 Apps Script 設定`, 'error');
+            }
 
-  return await res.json();
-}
             // 重置表單
             document.getElementById('rsvp-form').reset();
             document.querySelector('input[value="yes"]').checked = true;
@@ -1415,15 +1446,16 @@ async function api(action, payload = {}) {
             }
         }
 
-        function deleteGuest(id) {
+        async function deleteGuest(id) {
             if (confirm("您確定要刪除這筆賓客登記紀錄嗎？相關桌位與禮金設定需要一併調整。")) {
                 const deletedGuest = guests.find(g => g.id === id);
+                const result = await api('deleteGuest', { id });
                 guests = guests.filter(g => g.id !== id);
                 if (deletedGuest) {
                     gifts = gifts.filter(g => g.giver !== deletedGuest.name);
                 }
                 saveState();
-                showToast("成功刪除該筆賓客紀錄", "success");
+                showToast(result.ok ? "成功刪除該筆賓客紀錄，並已同步 Google Sheet" : "已先從本機刪除；Google Sheet 同步失敗，請稍後檢查 Apps Script", result.ok ? "success" : "error");
                 refreshAllViews();
             }
         }
