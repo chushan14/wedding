@@ -56,6 +56,66 @@
         .modal-active {
             display: flex !important;
         }
+        .choice-card {
+            position: relative;
+            background: #fff;
+            color: #57534e;
+        }
+        .choice-card:has(input:checked) {
+            background: #F3EDE2;
+            border-color: #70533E;
+            color: #423024;
+            box-shadow: 0 8px 18px rgba(112, 83, 62, 0.16);
+        }
+        .choice-card:has(input:checked)::after {
+            content: "✓";
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            background: #70533E;
+            color: #fff;
+            font-size: 12px;
+            line-height: 18px;
+            text-align: center;
+            font-weight: 700;
+        }
+        .choice-card:has(input:checked) i,
+        .choice-card:has(input:checked) span {
+            color: #423024;
+            font-weight: 700;
+        }
+        .conditional-field {
+            display: none;
+        }
+        .conditional-field.active {
+            display: block;
+        }
+        @media (max-width: 640px) {
+            body {
+                min-width: 0;
+                overflow-x: hidden;
+            }
+            input,
+            select,
+            textarea,
+            button {
+                font-size: 16px !important;
+            }
+            #tab-rsvp {
+                margin-left: -0.5rem;
+                margin-right: -0.5rem;
+            }
+            .choice-card {
+                min-height: 48px;
+            }
+            .choice-card:has(input:checked)::after {
+                top: 5px;
+                right: 6px;
+            }
+        }
     </style>
 </head>
 <body class="bg-stone-50 font-sans text-stone-800 leading-normal tracking-wide">
@@ -101,7 +161,7 @@
     <header class="hero-gradient h-[250px] sm:h-[350px] flex flex-col justify-center items-center text-center text-white px-4">
         <h1 class="font-serif text-3xl sm:text-5xl font-bold tracking-widest mb-2 drop-shadow-md">12 hours closer</h1>
         <p class="text-sm sm:text-lg tracking-wider text-milktea-100 font-light mb-4 drop-shadow-sm">十二小時的距離，讓我們更走近彼此的永恆</p>
-        <div class="bg-white/10 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 text-xs sm:text-sm tracking-widest text-milktea-50">
+        <div class="bg-white/10 backdrop-blur-md px-4 sm:px-6 py-2 rounded-2xl sm:rounded-full border border-white/20 text-xs sm:text-sm tracking-normal sm:tracking-widest text-milktea-50 max-w-full leading-relaxed">
             <i class="fa-regular fa-calendar-check mr-2"></i>2027.03.07 11:30 AM 入席 ｜ 12:00 PM 開席 | 台北勞瑞斯牛肋排餐廳 Lawry's Taipei
         </div>
     </header>
@@ -260,6 +320,7 @@
                                     <th class="px-4 py-3">現場簽到</th>
                                     <th class="px-4 py-3">賓客姓名</th>
                                     <th class="px-4 py-3">出席狀態</th>
+                                    <th class="px-4 py-3">喜帖需求</th>
                                     <th class="px-4 py-3">人數/桌號</th>
                                     <th class="px-4 py-3">餐點選擇與飲食禁忌</th>
                                     <th class="px-4 py-3">操作</th>
@@ -284,14 +345,14 @@
 
         <!-- ==================== 2. 出席與餐點表單分頁 (RSVP Form) ==================== -->
         <section id="tab-rsvp" class="tab-content hidden">
-            <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-md border border-milktea-100 overflow-hidden">
-                <div class="milktea-gradient p-8 text-center border-b border-milktea-200">
+            <div class="max-w-2xl mx-auto bg-white rounded-xl sm:rounded-2xl shadow-md border border-milktea-100 overflow-hidden">
+                <div class="milktea-gradient p-5 sm:p-8 text-center border-b border-milktea-200">
                     <span class="text-coffee-600 text-xs uppercase tracking-widest font-semibold block mb-2">RSVP FORM</span>
-                    <h2 class="font-serif text-2xl font-bold text-coffee-800">出席意願與餐點統計表</h2>
+                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-coffee-800">出席意願與餐點統計表</h2>
                     <p id="rsvp-welcome-message" class="text-coffee-600 text-xs mt-2">請完成填寫，以利我們安排座位與餐點 </p>
                 </div>
                 
-                <form id="rsvp-form" onsubmit="handleRSVPSubmit(event)" class="p-8 space-y-6">
+                <form id="rsvp-form" onsubmit="handleRSVPSubmit(event)" class="p-4 sm:p-8 space-y-6">
                     <!-- 基本資料 -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
@@ -307,41 +368,72 @@
                     <!-- 賓客關係 -->
                     <div>
                         <label class="block text-sm font-medium text-stone-600 mb-2">與新人的關係 <span class="text-coffee-500">*</span></label>
-                        <div class="grid grid-cols-4 gap-3">
-                            <label class="flex items-center justify-center border border-milktea-200 rounded-lg py-2 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <label class="choice-card flex items-center justify-center border border-milktea-200 rounded-lg py-2.5 px-3 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
                                 <input type="radio" name="relation" value="男方親友" required class="sr-only peer">
                                 <span class="peer-checked:text-coffee-700 peer-checked:font-bold">男方親友</span>
                             </label>
-                            <label class="flex items-center justify-center border border-milktea-200 rounded-lg py-2 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
+                            <label class="choice-card flex items-center justify-center border border-milktea-200 rounded-lg py-2.5 px-3 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
                                 <input type="radio" name="relation" value="女方親友" class="sr-only peer">
                                 <span class="peer-checked:text-coffee-700 peer-checked:font-bold">女方親友</span>
                             </label>
-                            <label class="flex items-center justify-center border border-milktea-200 rounded-lg py-2 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
+                            <label class="choice-card flex items-center justify-center border border-milktea-200 rounded-lg py-2.5 px-3 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
                                 <input type="radio" name="relation" value="男方共同好友" class="sr-only peer">
                                 <span class="peer-checked:text-coffee-700 peer-checked:font-bold">男方好友</span>
                             </label>
-                            <label class="flex items-center justify-center border border-milktea-200 rounded-lg py-2 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
+                            <label class="choice-card flex items-center justify-center border border-milktea-200 rounded-lg py-2.5 px-3 text-sm cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
                                 <input type="radio" name="relation" value="女方共同好友" class="sr-only peer">
                                 <span class="peer-checked:text-coffee-700 peer-checked:font-bold">女方好友</span>
                             </label>
                         </div>
                     </div>
 
+                    <div>
+                        <label class="block text-sm font-medium text-stone-600 mb-2">是否需要喜帖 <span class="text-coffee-500">*</span></label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                            <label class="choice-card flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
+                                <input type="checkbox" name="invitation" value="電子喜帖" onchange="toggleInvitationFields()" class="sr-only peer">
+                                <i class="fa-solid fa-envelope-open-text text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
+                                <span class="text-sm font-medium">電子喜帖</span>
+                            </label>
+                            <label class="choice-card flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
+                                <input type="checkbox" name="invitation" value="紙本喜帖" onchange="toggleInvitationFields()" class="sr-only peer">
+                                <i class="fa-solid fa-envelope text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
+                                <span class="text-sm font-medium">紙本喜帖</span>
+                            </label>
+                            <label class="choice-card flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all">
+                                <input type="checkbox" name="invitation" value="已知資訊不需要喜帖" onchange="toggleInvitationFields()" class="sr-only peer">
+                                <i class="fa-solid fa-circle-check text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
+                                <span class="text-sm font-medium text-center">已知資訊<br class="hidden sm:block">不需要喜帖</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+                            <div id="invitation-email-wrapper" class="conditional-field">
+                                <label class="block text-sm font-medium text-stone-600 mb-1" for="invitation-email">Email <span class="text-coffee-500">*</span></label>
+                                <input type="email" id="invitation-email" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all" placeholder="example@email.com">
+                            </div>
+                            <div id="invitation-address-wrapper" class="conditional-field">
+                                <label class="block text-sm font-medium text-stone-600 mb-1" for="invitation-address">紙本寄送地址 <span class="text-coffee-500">*</span></label>
+                                <input type="text" id="invitation-address" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all" placeholder="請填寫完整寄送地址">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 出席意願 -->
                     <div>
                         <label class="block text-sm font-medium text-stone-600 mb-2">是否出席盛宴 <span class="text-coffee-500">*</span></label>
-                        <div class="grid grid-cols-3 gap-4">
-                            <label class="flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                            <label class="choice-card flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
                                 <input type="radio" name="attendance" value="yes" checked onchange="toggleAttendanceFields(true)" class="sr-only peer">
                                 <i class="fa-regular fa-face-smile text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
                                 <span class="text-sm font-medium">受邀出席</span>
                             </label>
-                            <label class="flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
+                            <label class="choice-card flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
                                 <input type="radio" name="attendance" value="gift-only" onchange="toggleAttendanceFields(false)" class="sr-only peer">
                                 <i class="fa-solid fa-gift text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
                                 <span class="text-sm font-medium text-center">禮到人不到</span>
                             </label>
-                            <label class="flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
+                            <label class="choice-card flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
                                 <input type="radio" name="attendance" value="no" onchange="toggleAttendanceFields(false)" class="sr-only peer">
                                 <i class="fa-regular fa-face-frown text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
                                 <span class="text-sm font-medium">不克出席</span>
@@ -354,7 +446,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-sm font-medium text-stone-600 mb-1" for="guest-count">出席總人數 <span class="text-coffee-500">*</span></label>
-                                <select id="guest-count" onchange="generateMealInputs()" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all bg-white">
+                                <select id="guest-count" onchange="handleGuestCountChange()" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all bg-white">
                                     <option value="1">1 人</option>
                                     <option value="2">2 人</option>
                                     <option value="3">3 人</option>
@@ -372,8 +464,13 @@
                             </div>
                         </div>
 
+                        <div id="companion-names-wrapper" class="hidden">
+                            <label class="block text-sm font-medium text-stone-600 mb-1" for="companion-names">其他賓客姓名 <span class="text-coffee-500">*</span></label>
+                            <textarea id="companion-names" rows="3" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all" placeholder="若總人數超過 2 位，請填寫其他賓客姓名，以利製作名牌。例：王小明、王小華"></textarea>
+                        </div>
+
                         <!-- 依據人數動態生成餐點與特殊要求選擇 -->
-                        <div class="bg-milktea-50/50 p-6 rounded-xl space-y-6 border border-milktea-100">
+                        <div class="bg-milktea-50/50 p-4 sm:p-6 rounded-xl space-y-6 border border-milktea-100">
                             <span class="text-sm font-semibold text-coffee-800 block border-b border-milktea-200 pb-2"><i class="fa-solid fa-utensils text-coffee-500 mr-2"></i>每位賓客主餐與特殊需求設定</span>
                             <div id="meal-inputs-container" class="space-y-6">
                                 <!-- JS 動態產生的餐點選擇欄位 -->
@@ -381,14 +478,14 @@
                         </div>
 
                         <!-- 交通與車牌登記 -->
-                        <div class="bg-milktea-100/30 p-6 rounded-xl border border-milktea-200/60 space-y-4">
+                        <div class="bg-milktea-100/30 p-4 sm:p-6 rounded-xl border border-milktea-200/60 space-y-4">
                             <span class="text-sm font-semibold text-coffee-800 block border-b border-milktea-200 pb-2">
                                 <i class="fa-solid fa-car text-coffee-500 mr-2"></i>交通規劃與車位折抵
                             </span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-sm font-medium text-stone-600 mb-1">是否自行開車？ <span class="text-coffee-500">*</span></label>
-                                    <div class="flex space-x-4 mt-1">
+                                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-1">
                                         <label class="flex items-center text-sm text-stone-700 cursor-pointer">
                                             <input type="radio" name="self-drive" value="yes" onchange="toggleCarPlateInput(true)" class="mr-2 text-coffee-500 focus:ring-coffee-400"> 是，開車前往
                                         </label>
@@ -693,6 +790,7 @@
                 name: "王大明", 
                 phone: "0912111222", 
                 relation: "男方親友", 
+                invitation: "電子喜帖",
                 attendance: "yes", 
                 count: 2, 
                 meals: [
@@ -711,6 +809,7 @@
                 name: "林小華", 
                 phone: "0923222333", 
                 relation: "女方親友", 
+                invitation: "紙本喜帖",
                 attendance: "yes", 
                 count: 2, 
                 meals: [
@@ -729,6 +828,7 @@
                 name: "張志豪", 
                 phone: "0934333444", 
                 relation: "男方共同好友", 
+                invitation: "已知資訊不需要喜帖",
                 attendance: "yes", 
                 count: 1, 
                 meals: [
@@ -746,6 +846,7 @@
                 name: "陳雅婷", 
                 phone: "0945444555", 
                 relation: "女方共同好友", 
+                invitation: "電子喜帖",
                 attendance: "yes", 
                 count: 1, 
                 meals: [
@@ -773,23 +874,66 @@
 
         let activeTableId = ""; // 目前正在彈出視窗中編輯的桌號
         let isAdminLoggedIn = false; // 是否已解鎖後台
+        let currentMode = "admin"; // admin / guest / seating
         let appSettings = {
             welcomeMessage: "請完成填寫，以利我們安排座位與餐點"
         };
 
         const STORAGE_KEY = "twelve_hours_closer_wedding_data_v1";
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMUBRAeVyaF3Ky16BjmSY1c-zgruJEurPZPllPGVBF_vBlRPqrMvlONw2k2NMIyHmE/exec";
+        // GitHub Pages 版：請貼 Apps Script「網頁應用程式」的 /exec URL。
+        const GOOGLE_SCRIPT_URL = "PASTE_APPS_SCRIPT_EXEC_URL_HERE";
+        // 正式 GitHub Pages 網址可留空，系統會自動使用目前頁面網址產生分享連結。
+        const PUBLIC_SITE_URL = "";
         const ENABLE_GOOGLE_SHEET_SYNC = GOOGLE_SCRIPT_URL.includes("script.google.com");
 
-        async function api(action, payload = {}) {
+        function api(action, payload) {
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                return new Promise(resolve => {
+                    const runner = google.script.run
+                        .withSuccessHandler(result => resolve(result || { ok: true }))
+                        .withFailureHandler(error => {
+                            console.warn("Google Sheet 同步失敗。", error);
+                            resolve({ ok: false, error: error.message || String(error) });
+                        });
+
+                    if (typeof runner[action] !== 'function') {
+                        resolve({ ok: false, error: `找不到後端函式：${action}` });
+                        return;
+                    }
+
+                    if (typeof payload === 'undefined') {
+                        runner[action]();
+                    } else {
+                        runner[action](payload);
+                    }
+                });
+            }
+
+            return fetchApi(action, payload);
+        }
+
+        async function fetchApi(action, payload = {}) {
             if (!ENABLE_GOOGLE_SHEET_SYNC) {
                 return { ok: false, error: "Google Sheet API 尚未設定" };
             }
 
             try {
+                const body = { action };
+                if (action === 'createGuest') {
+                    body.guest = payload;
+                } else if (action === 'createGift') {
+                    body.gift = payload;
+                } else if (action === 'deleteGuest' || action === 'deleteGift') {
+                    body.id = payload;
+                } else if (action === 'updateGuest') {
+                    Object.assign(body, payload);
+                } else if (payload && typeof payload === 'object') {
+                    Object.assign(body, payload);
+                }
+
                 const res = await fetch(GOOGLE_SCRIPT_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action, ...payload })
+                    body: JSON.stringify(body)
                 });
                 return await res.json();
             } catch (error) {
@@ -800,18 +944,99 @@
 
         async function loadGuestsFromSheet() {
             const result = await api("listGuests");
-            if (!result.ok || !Array.isArray(result.guests)) return false;
+            if (!result.ok || !Array.isArray(result.guests)) {
+                console.warn("讀取 Google Sheet 賓客資料失敗", result);
+                return false;
+            }
 
-            guests = result.guests.map(g => ({
+            guests = result.guests.map(g => {
+                let meals = [];
+                if (Array.isArray(g.meals)) {
+                    meals = g.meals;
+                } else if (typeof g.mealsJson === "string" && g.mealsJson.trim()) {
+                    try {
+                        meals = JSON.parse(g.mealsJson);
+                    } catch (error) {
+                        console.warn("餐點 JSON 解析失敗", g.name, error);
+                    }
+                }
+
+                return {
+                    ...g,
+                    id: String(g.id),
+                    invitation: g.invitation || "未填",
+                    invitationEmail: g.invitationEmail || "",
+                    invitationAddress: g.invitationAddress || "",
+                    companionNames: g.companionNames || "",
+                    count: parseInt(g.count, 10) || 0,
+                    babyChairs: parseInt(g.babyChairs, 10) || 0,
+                    checkedIn: g.checkedIn === true || g.checkedIn === "TRUE" || g.checkedIn === "true",
+                    meals
+                };
+            });
+            saveState();
+            return true;
+        }
+
+        async function loadGiftsFromSheet() {
+            const result = await api("listGifts");
+            if (!result.ok || !Array.isArray(result.gifts)) {
+                console.warn("讀取 Google Sheet 禮金資料失敗", result);
+                return false;
+            }
+
+            gifts = result.gifts.map(g => ({
                 ...g,
                 id: String(g.id),
-                count: parseInt(g.count, 10) || 0,
-                babyChairs: parseInt(g.babyChairs, 10) || 0,
-                checkedIn: g.checkedIn === true || g.checkedIn === "TRUE" || g.checkedIn === "true",
-                meals: Array.isArray(g.meals) ? g.meals : []
+                amount: parseInt(g.amount, 10) || 0,
+                note: g.note || ""
             }));
             saveState();
             return true;
+        }
+
+        async function loadSettingsFromSheet() {
+            const result = await api("getSettings");
+            if (!result.ok || !result.settings) {
+                console.warn("讀取 Google Sheet 設定失敗", result);
+                return false;
+            }
+
+            appSettings = { ...appSettings, ...result.settings };
+            if (result.settings.tablesJson) {
+                try {
+                    const savedTables = JSON.parse(result.settings.tablesJson);
+                    if (Array.isArray(savedTables)) tables = savedTables;
+                } catch (error) {
+                    console.warn("桌位設定 JSON 解析失敗", error);
+                }
+            }
+            applySettingsToUI();
+            saveState();
+            return true;
+        }
+
+        async function saveTablesToSheet() {
+            saveState();
+            const result = await api("saveSetting", {
+                key: "tablesJson",
+                value: JSON.stringify(tables)
+            });
+            if (!result.ok) {
+                console.warn("同步桌位設定失敗", result);
+            }
+            return result.ok;
+        }
+
+        async function syncGuestFields(guestId, fields) {
+            const result = await api("updateGuest", {
+                id: guestId,
+                fields
+            });
+            if (!result.ok) {
+                console.warn("同步賓客資料失敗", guestId, fields, result);
+            }
+            return result.ok;
         }
 
         function loadState() {
@@ -854,7 +1079,7 @@
             if (welcomeInput) welcomeInput.value = welcomeMessage;
         }
 
-        function saveWelcomeMessage() {
+        async function saveWelcomeMessage() {
             const input = document.getElementById("welcome-message-input");
             const nextMessage = input.value.trim();
 
@@ -867,7 +1092,12 @@
             appSettings.welcomeMessage = nextMessage;
             applySettingsToUI();
             saveState();
-            showToast("表單歡迎訊息已更新。", "success");
+
+            const result = await api("saveSetting", {
+                key: "welcomeMessage",
+                value: nextMessage
+            });
+            showToast(result.ok ? "表單歡迎訊息已更新並同步。" : "表單歡迎訊息已先存在本機，Google Sheet 同步失敗。", result.ok ? "success" : "error");
         }
 
         function refreshAllViews() {
@@ -880,14 +1110,30 @@
         }
 
         // ------------------ 系統門禁與模式解析 ------------------
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             loadState();
             applySettingsToUI();
+            await loadSettingsFromSheet();
+            generateMealInputs(); // 初始化 RSVP 表單首位餐點
+            toggleInvitationFields();
+            toggleCompanionNamesField();
 
-            // 解析 URL 參數
-            const urlParams = new URLSearchParams(window.location.search);
-            const isGuestMode = urlParams.get('mode') === 'guest';
-            const isSeatingMode = urlParams.get('mode') === 'seating';
+            if (typeof google !== 'undefined' && google.script && google.script.url) {
+                google.script.url.getLocation(location => {
+                    initPageMode(location.parameter || {});
+                });
+            } else {
+                const urlParams = new URLSearchParams(window.location.search);
+                initPageMode({
+                    mode: urlParams.get('mode')
+                });
+            }
+        });
+
+        function initPageMode(params) {
+            currentMode = params.mode || "admin";
+            const isGuestMode = currentMode === 'guest';
+            const isSeatingMode = currentMode === 'seating';
 
             if (isSeatingMode) {
                 // 座位配置模式 (供親友或餐廳工作人員唯讀查看)
@@ -936,9 +1182,7 @@
                 document.getElementById('admin-navbar').classList.add('hidden');
                 document.getElementById('main-container').classList.add('hidden');
             }
-
-            generateMealInputs(); // 初始化 RSVP 表單首位餐點
-        });
+        }
 
         // 管理員密碼驗證 (預設密碼：0307)
         async function handleAdminLogin(e) {
@@ -956,9 +1200,9 @@
                 document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('hidden'));
                 
                 // 預設進入儀表板
+                await loadSettingsFromSheet();
                 await loadGuestsFromSheet();
-                switchTab('dashboard');
-                refreshAllViews();
+                await switchTab('dashboard');
             } else {
                 showToast("密碼錯誤，請重新輸入 (預設為婚禮日期)", "error");
             }
@@ -975,40 +1219,62 @@
 
         function forceGuestView() {
             // 切換成臨時賓客視圖
-            window.location.search = '?mode=guest';
+            window.location.href = buildShareUrl('guest');
+        }
+
+        function buildShareUrl(mode) {
+            const fallbackUrl = window.location.protocol === 'file:'
+                ? "https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPOSITORY/"
+                : `${window.location.origin}${window.location.pathname}`;
+            const baseUrl = PUBLIC_SITE_URL || fallbackUrl;
+            const url = new URL(baseUrl);
+            url.searchParams.set('mode', mode);
+            return url.toString();
+        }
+
+        async function copyTextToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+                return;
+            }
+
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            tempInput.setAttribute("readonly", "");
+            tempInput.style.position = "fixed";
+            tempInput.style.left = "-9999px";
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
         }
 
         // 複製賓客專屬 RSVP 連結給新人
-        function copyGuestLink() {
-            const cleanUrl = window.location.origin + window.location.pathname + '?mode=guest';
-            
-            // 複製到剪貼簿 (相容 iFrame 環境)
-            const tempInput = document.createElement("input");
-            tempInput.value = cleanUrl;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-
-            showToast("賓客專屬回覆連結已複製！您可以直接傳給親友。", "success");
+        async function copyGuestLink() {
+            const cleanUrl = buildShareUrl('guest');
+            try {
+                await copyTextToClipboard(cleanUrl);
+                showToast("賓客專屬回覆連結已複製！您可以直接傳給親友。", "success");
+            } catch (error) {
+                console.warn("複製連結失敗", error);
+                prompt("自動複製失敗，請手動複製以下連結：", cleanUrl);
+            }
         }
 
         // 複製唯讀座位配置分享連結
-        function copySeatingLink() {
-            const cleanUrl = window.location.origin + window.location.pathname + '?mode=seating';
-            
-            const tempInput = document.createElement("input");
-            tempInput.value = cleanUrl;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-
-            showToast("座位配置分享連結已複製！可提供給賓客或餐廳服務人員。", "success");
+        async function copySeatingLink() {
+            const cleanUrl = buildShareUrl('seating');
+            try {
+                await copyTextToClipboard(cleanUrl);
+                showToast("座位配置分享連結已複製！可提供給賓客或餐廳服務人員。", "success");
+            } catch (error) {
+                console.warn("複製連結失敗", error);
+                prompt("自動複製失敗，請手動複製以下連結：", cleanUrl);
+            }
         }
 
         // ------------------ 分頁切換 ------------------
-        function switchTab(tabName) {
+        async function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.add('hidden');
                 tab.classList.remove('block');
@@ -1031,11 +1297,23 @@
             }
 
             if (tabName === 'dashboard') {
+                if (isAdminLoggedIn) {
+                    await loadGuestsFromSheet();
+                    await loadGiftsFromSheet();
+                }
                 updateDashboard();
             } else if (tabName === 'seating') {
+                if (isAdminLoggedIn || currentMode === 'seating') {
+                    await loadSettingsFromSheet();
+                    await loadGuestsFromSheet();
+                }
                 renderTableGrid();
                 renderUnassignedGuests();
             } else if (tabName === 'gift') {
+                if (isAdminLoggedIn) {
+                    await loadGuestsFromSheet();
+                    await loadGiftsFromSheet();
+                }
                 renderGiftLedger();
             } else if (tabName === 'parking') {
                 renderParkingLedger();
@@ -1081,12 +1359,16 @@
         }
 
         // ------------------ 當日手動報到勾選變更 ------------------
-        function toggleGuestCheckIn(guestId, isChecked) {
+        async function toggleGuestCheckIn(guestId, isChecked) {
             const guest = guests.find(g => g.id === guestId);
             if (guest) {
                 guest.checkedIn = isChecked;
                 saveState();
-                showToast(`${guest.name} 報到狀態已變更！`, "success");
+                const result = await api('updateGuest', {
+                    id: guestId,
+                    fields: { checkedIn: isChecked }
+                });
+                showToast(result.ok ? `${guest.name} 報到狀態已同步變更！` : `${guest.name} 報到狀態已先存在本機，同步失敗。`, result.ok ? "success" : "error");
                 updateDashboard();
             }
         }
@@ -1162,9 +1444,13 @@
                     const matchesName = g.name.toLowerCase().includes(searchQuery);
                     const matchesPhone = g.phone && g.phone.toLowerCase().includes(searchQuery);
                     const matchesRelation = g.relation && g.relation.toLowerCase().includes(searchQuery);
+                    const matchesInvitation = g.invitation && g.invitation.toLowerCase().includes(searchQuery);
+                    const matchesInvitationEmail = g.invitationEmail && g.invitationEmail.toLowerCase().includes(searchQuery);
+                    const matchesInvitationAddress = g.invitationAddress && g.invitationAddress.toLowerCase().includes(searchQuery);
+                    const matchesCompanionNames = g.companionNames && g.companionNames.toLowerCase().includes(searchQuery);
                     const matchesTable = tableName.toLowerCase().includes(searchQuery);
                     const matchesPlate = g.carPlate && g.carPlate.toLowerCase().includes(searchQuery);
-                    if (!matchesName && !matchesPhone && !matchesRelation && !matchesTable && !matchesPlate) {
+                    if (!matchesName && !matchesPhone && !matchesRelation && !matchesInvitation && !matchesInvitationEmail && !matchesInvitationAddress && !matchesCompanionNames && !matchesTable && !matchesPlate) {
                         return; // 若都不相符則跳過不顯示
                     }
                 }
@@ -1209,9 +1495,15 @@
                         <div class="text-[10px] text-stone-400 font-normal sm:hidden">${g.phone || ''}</div>
                     </td>
                     <td class="px-4 py-3">${statusBadge}</td>
+                    <td class="px-4 py-3 text-stone-600">
+                        <div>${escapeHtml(g.invitation || '未填')}</div>
+                        ${g.invitationEmail ? `<div class="text-[10px] text-stone-400 mt-0.5">${escapeHtml(g.invitationEmail)}</div>` : ''}
+                        ${g.invitationAddress ? `<div class="text-[10px] text-stone-400 mt-0.5">${escapeHtml(g.invitationAddress)}</div>` : ''}
+                    </td>
                     <td class="px-4 py-3 font-medium">
                         <div>${g.count} 人 / <span class="text-coffee-600 font-semibold">${tableName}</span></div>
                         <div class="text-[10px] text-stone-400 mt-0.5"><i class="fa-solid fa-car mr-1 text-coffee-300"></i>${transportText}</div>
+                        ${g.companionNames ? `<div class="text-[10px] text-stone-400 mt-0.5">名牌: ${escapeHtml(g.companionNames)}</div>` : ''}
                     </td>
                     <td class="px-4 py-3 text-stone-600 leading-relaxed">${mealDetailsText}</td>
                     <td class="px-4 py-3">
@@ -1251,6 +1543,51 @@
             }
         }
 
+        function toggleInvitationFields() {
+            const selected = Array.from(document.querySelectorAll('input[name="invitation"]:checked')).map(input => input.value);
+            const noInvitation = document.querySelector('input[name="invitation"][value="已知資訊不需要喜帖"]');
+            const emailWrapper = document.getElementById('invitation-email-wrapper');
+            const addressWrapper = document.getElementById('invitation-address-wrapper');
+            const emailInput = document.getElementById('invitation-email');
+            const addressInput = document.getElementById('invitation-address');
+
+            if (selected.includes("已知資訊不需要喜帖") && selected.length > 1) {
+                noInvitation.checked = false;
+            } else if (selected.includes("已知資訊不需要喜帖")) {
+                document.querySelectorAll('input[name="invitation"]').forEach(input => {
+                    if (input.value !== "已知資訊不需要喜帖") input.checked = false;
+                });
+            }
+
+            const nextSelected = Array.from(document.querySelectorAll('input[name="invitation"]:checked')).map(input => input.value);
+            const needsEmail = nextSelected.includes("電子喜帖");
+            const needsAddress = nextSelected.includes("紙本喜帖");
+
+            emailWrapper.classList.toggle('active', needsEmail);
+            addressWrapper.classList.toggle('active', needsAddress);
+            emailInput.required = needsEmail;
+            addressInput.required = needsAddress;
+
+            if (!needsEmail) emailInput.value = '';
+            if (!needsAddress) addressInput.value = '';
+        }
+
+        function handleGuestCountChange() {
+            generateMealInputs();
+            toggleCompanionNamesField();
+        }
+
+        function toggleCompanionNamesField() {
+            const count = parseInt(document.getElementById('guest-count').value, 10) || 1;
+            const wrapper = document.getElementById('companion-names-wrapper');
+            const input = document.getElementById('companion-names');
+            const shouldShow = count > 2;
+
+            wrapper.classList.toggle('hidden', !shouldShow);
+            input.required = shouldShow;
+            if (!shouldShow) input.value = '';
+        }
+
         function handleMainCourseChange(index) {
             const mainCourseVal = document.getElementById(`main-course-${index}`).value;
             const donenessWrapper = document.getElementById(`doneness-wrapper-${index}`);
@@ -1273,7 +1610,7 @@
 
             for (let i = 1; i <= count; i++) {
                 const item = document.createElement('div');
-                item.className = "bg-white p-4 rounded-xl border border-milktea-200/60 shadow-sm space-y-4";
+                item.className = "bg-white p-3 sm:p-4 rounded-xl border border-milktea-200/60 shadow-sm space-y-4";
                 item.innerHTML = `
                     <div class="flex items-center justify-between border-b border-stone-100 pb-2">
                         <span class="text-xs font-bold text-coffee-700 bg-milktea-50 px-2 py-0.5 rounded-full"><i class="fa-solid fa-user mr-1"></i> 賓客 ${i} 需求</span>
@@ -1283,7 +1620,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-stone-600 mb-1" for="main-course-${i}">選擇主餐 <span class="text-coffee-500">*</span></label>
-                            <select id="main-course-${i}" onchange="handleMainCourseChange(${i})" required class="w-full px-3 py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none bg-white">
+                            <select id="main-course-${i}" onchange="handleMainCourseChange(${i})" required class="w-full px-3 py-2 sm:py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none bg-white">
                                 <option value="">-- 請選擇精緻主餐 --</option>
                                 <option value="ribeye">👑 美國頂級低溫烘烤牛肋排6oz</option>
                                 <option value="seafood">主廚時令鮮魚與南非鮮蠔及明蝦</option>
@@ -1296,7 +1633,7 @@
                         <!-- 牛肋排熟度連動選擇 -->
                         <div id="doneness-wrapper-${i}" class="hidden transition-all duration-300">
                             <label class="block text-xs font-semibold text-stone-600 mb-1" for="doneness-${i}">牛排熟度限制 <span class="text-coffee-500">*</span></label>
-                            <select id="doneness-${i}" class="w-full px-3 py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none bg-white">
+                            <select id="doneness-${i}" class="w-full px-3 py-2 sm:py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none bg-white">
                                 <option value="">-- 請選擇熟度 --</option>
                                 <option value="3分熟">3分熟 (建議)</option>
                                 <option value="5分熟">5分熟</option>
@@ -1308,30 +1645,30 @@
                     <!-- 2. 飲食禁忌與其他 -->
                     <div>
                         <label class="block text-xs font-semibold text-stone-600 mb-1.5">飲食禁忌複選 (可不選或複選)</label>
-                        <div class="flex flex-wrap gap-4 text-xs">
-                            <label class="flex items-center text-stone-700 cursor-pointer">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs">
+                            <label class="flex items-center min-h-10 px-3 py-2 bg-stone-50 rounded-lg text-stone-700 cursor-pointer">
                                 <input type="checkbox" name="allergy-${i}" value="全素" class="mr-1.5 rounded text-coffee-500 focus:ring-coffee-400"> 全素
                             </label>
-                            <label class="flex items-center text-stone-700 cursor-pointer">
+                            <label class="flex items-center min-h-10 px-3 py-2 bg-stone-50 rounded-lg text-stone-700 cursor-pointer">
                                 <input type="checkbox" name="allergy-${i}" value="不吃牛" class="mr-1.5 rounded text-coffee-500 focus:ring-coffee-400"> 不吃牛
                             </label>
-                            <label class="flex items-center text-stone-700 cursor-pointer">
+                            <label class="flex items-center min-h-10 px-3 py-2 bg-stone-50 rounded-lg text-stone-700 cursor-pointer">
                                 <input type="checkbox" name="allergy-${i}" value="不吃海鮮" class="mr-1.5 rounded text-coffee-500 focus:ring-coffee-400"> 不吃海鮮
                             </label>
-                            <label class="flex items-center text-stone-700 cursor-pointer">
+                            <label class="flex items-center min-h-10 px-3 py-2 bg-stone-50 rounded-lg text-stone-700 cursor-pointer">
                                 <input type="checkbox" id="allergy-other-check-${i}" value="其他" onchange="toggleAllergyOtherInput(${i})" class="mr-1.5 rounded text-coffee-500 focus:ring-coffee-400"> 其他特殊要求
                             </label>
                         </div>
                         <!-- 其他特殊要求手輸框 -->
                         <div id="allergy-other-wrapper-${i}" class="hidden mt-2">
-                            <input type="text" id="allergy-other-text-${i}" placeholder="例如：花生過敏、不吃生食..." class="w-full px-3 py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none">
+                            <input type="text" id="allergy-other-text-${i}" placeholder="例如：花生過敏、不吃生食..." class="w-full px-3 py-2 sm:py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none">
                         </div>
                     </div>
 
                     <!-- 3. 餐前酒與果汁變更 -->
                     <div>
                         <label class="block text-xs font-semibold text-stone-600 mb-1">餐前酒調整</label>
-                        <label class="flex items-center text-xs text-stone-700 cursor-pointer mt-1">
+                        <label class="flex items-center min-h-10 px-3 py-2 bg-stone-50 rounded-lg text-xs text-stone-700 cursor-pointer mt-1">
                             <input type="checkbox" id="drink-swap-${i}" class="mr-2 rounded text-coffee-500 focus:ring-coffee-400"> 餐前酒更換為健康果汁
                         </label>
                     </div>
@@ -1357,6 +1694,10 @@
             const name = document.getElementById('guest-name').value.trim();
             const phone = document.getElementById('guest-phone').value.trim();
             const relation = document.querySelector('input[name="relation"]:checked')?.value || "男方親友";
+            const invitationSelections = Array.from(document.querySelectorAll('input[name="invitation"]:checked')).map(input => input.value);
+            const invitation = invitationSelections.join('、');
+            const invitationEmail = document.getElementById('invitation-email').value.trim();
+            const invitationAddress = document.getElementById('invitation-address').value.trim();
             const attendance = document.querySelector('input[name="attendance"]:checked').value;
             const wish = document.getElementById('guest-wish').value.trim();
 
@@ -1365,12 +1706,25 @@
             let babyChairs = 0;
             let selfDrive = "no";
             let carPlate = "";
+            let companionNames = "";
+
+            if (invitationSelections.length === 0) {
+                showToast("請選擇是否需要喜帖。", "error");
+                return;
+            }
 
             if (attendance === 'yes') {
                 count = parseInt(document.getElementById('guest-count').value);
                 babyChairs = parseInt(document.getElementById('baby-chair-count').value);
                 selfDrive = document.querySelector('input[name="self-drive"]:checked').value;
                 carPlate = document.getElementById('car-plate').value.trim();
+                companionNames = document.getElementById('companion-names').value.trim();
+
+                if (count > 2 && !companionNames) {
+                    showToast("超過兩位賓客時，請填寫其他賓客姓名，以利製作名牌。", "error");
+                    document.getElementById('companion-names').focus();
+                    return;
+                }
 
                 for (let i = 1; i <= count; i++) {
                     const mainCourse = document.getElementById(`main-course-${i}`).value;
@@ -1405,25 +1759,33 @@
                 name,
                 phone,
                 relation,
+                invitation,
+                invitationEmail,
+                invitationAddress,
                 attendance,
                 count,
                 meals,
                 babyChairs,
                 selfDrive,
                 carPlate,
+                companionNames,
                 wish,
                 tableId: "",
                 checkedIn: false // 新登記預設未簽到
             };
 
-            const result = await api('createGuest', { guest: newGuest });
-            guests.push(newGuest);
-            saveState();
+            const result = await api('createGuest', newGuest);
 
             if (result.ok) {
-                await loadGuestsFromSheet();
+                const loaded = await loadGuestsFromSheet();
+                if (!loaded) {
+                    guests.push(newGuest);
+                    saveState();
+                }
                 showToast(`成功！感謝 ${name} 的回覆與登記，資料已同步到 Google Sheet`, 'success');
             } else {
+                guests.push(newGuest);
+                saveState();
                 showToast(`已先儲存在本機；Google Sheet 同步失敗，請稍後檢查 Apps Script 設定`, 'error');
             }
 
@@ -1433,12 +1795,11 @@
             toggleAttendanceFields(true);
             toggleCarPlateInput(false);
             generateMealInputs();
+            toggleInvitationFields();
+            toggleCompanionNamesField();
 
             // 若非賓客模式，才更新儀表板
-            const urlParams = new URLSearchParams(window.location.search);
-            const isGuestMode = urlParams.get('mode') === 'guest';
-            
-            if (isGuestMode) {
+            if (currentMode === 'guest') {
                 alert(`親愛的 ${name}，我們已成功收到您的婚禮出席回覆！期待 2027.03.07 於台北勞瑞斯牛肋排餐廳與您相聚！`);
             } else {
                 updateDashboard();
@@ -1449,7 +1810,7 @@
         async function deleteGuest(id) {
             if (confirm("您確定要刪除這筆賓客登記紀錄嗎？相關桌位與禮金設定需要一併調整。")) {
                 const deletedGuest = guests.find(g => g.id === id);
-                const result = await api('deleteGuest', { id });
+                const result = await api('deleteGuest', id);
                 guests = guests.filter(g => g.id !== id);
                 if (deletedGuest) {
                     gifts = gifts.filter(g => g.giver !== deletedGuest.name);
@@ -1604,7 +1965,7 @@
             });
         }
 
-        function quickAssign(guestId, tableId) {
+        async function quickAssign(guestId, tableId) {
             if (!tableId) return;
             const guest = guests.find(g => g.id === guestId);
             const table = tables.find(t => t.id === tableId);
@@ -1620,13 +1981,14 @@
                 }
                 guest.tableId = tableId;
                 saveState();
-                showToast(`已將 ${guest.name} 分配至 ${table.name}`, 'success');
+                const synced = await syncGuestFields(guest.id, { tableId });
+                showToast(synced ? `已將 ${guest.name} 分配至 ${table.name} 並同步` : `已將 ${guest.name} 分配至 ${table.name}，但同步失敗`, synced ? 'success' : 'error');
                 renderTableGrid();
                 renderUnassignedGuests();
             }
         }
 
-        function autoAssignSeats() {
+        async function autoAssignSeats() {
             const unassigned = guests.filter(g => g.attendance === 'yes' && (!g.tableId || g.tableId === ''));
             if (unassigned.length === 0) {
                 showToast("目前所有賓客皆已安排了長桌座位！", "info");
@@ -1650,7 +2012,8 @@
 
             if (countAssigned > 0) {
                 saveState();
-                showToast(`成功為 ${countAssigned} 組賓客自動排配長桌座位！`, "success");
+                await Promise.all(unassigned.map(guest => syncGuestFields(guest.id, { tableId: guest.tableId || "" })));
+                showToast(`成功為 ${countAssigned} 組賓客自動排配長桌座位並同步！`, "success");
                 renderTableGrid();
                 renderUnassignedGuests();
             } else {
@@ -1658,7 +2021,7 @@
             }
         }
 
-        function addNewTable() {
+        async function addNewTable() {
             const nextNum = tables.length + 1;
             const newTbl = {
                 id: `table-${Date.now()}`,
@@ -1666,8 +2029,8 @@
                 capacity: 8
             };
             tables.push(newTbl);
-            saveState();
-            showToast(`已新增：${newTbl.name} (容量上限 8 席)`, 'success');
+            const synced = await saveTablesToSheet();
+            showToast(synced ? `已新增：${newTbl.name} (容量上限 8 席) 並同步` : `已新增：${newTbl.name}，但同步失敗`, synced ? 'success' : 'error');
             renderTableGrid();
         }
 
@@ -1678,8 +2041,7 @@
             if (!table) return;
 
             // 判斷是否為唯讀座位查詢模式
-            const urlParams = new URLSearchParams(window.location.search);
-            const isSeatingReadOnly = urlParams.get('mode') === 'seating';
+            const isSeatingReadOnly = currentMode === 'seating';
 
             if (isSeatingReadOnly) {
                 // 唯讀模式
@@ -1793,7 +2155,7 @@
             renderUnassignedGuests();
         }
 
-        function saveTableModalEdit() {
+        async function saveTableModalEdit() {
             if (!activeTableId) return;
             const newName = document.getElementById('modal-table-name').value.trim();
             const newCapacity = parseInt(document.getElementById('modal-table-capacity-input').value);
@@ -1804,23 +2166,24 @@
                 if (!isNaN(newCapacity) && newCapacity > 0) {
                     table.capacity = newCapacity;
                 }
-                saveState();
-                showToast("長桌座位與設定資訊已更新！", "success");
+                const synced = await saveTablesToSheet();
+                showToast(synced ? "長桌座位與設定資訊已更新並同步！" : "長桌座位與設定已先存在本機，同步失敗。", synced ? "success" : "error");
             }
             closeTableModal();
         }
 
-        function removeGuestFromTable(guestId) {
+        async function removeGuestFromTable(guestId) {
             const guest = guests.find(g => g.id === guestId);
             if (guest) {
                 guest.tableId = "";
                 saveState();
-                showToast(`已將 ${guest.name} 移出長桌`, "info");
+                const synced = await syncGuestFields(guest.id, { tableId: "" });
+                showToast(synced ? `已將 ${guest.name} 移出長桌並同步` : `已將 ${guest.name} 移出長桌，但同步失敗`, synced ? "success" : "error");
                 openTableModal(activeTableId);
             }
         }
 
-        function assignGuestToCurrentTable() {
+        async function assignGuestToCurrentTable() {
             const select = document.getElementById('modal-assign-select');
             const guestId = select.value;
             if (!guestId || !activeTableId) return;
@@ -1831,25 +2194,30 @@
             if (guest && table) {
                 guest.tableId = activeTableId;
                 saveState();
-                showToast(`已將 ${guest.name} 分配至 ${table.name}`, 'success');
+                const synced = await syncGuestFields(guest.id, { tableId: activeTableId });
+                showToast(synced ? `已將 ${guest.name} 分配至 ${table.name} 並同步` : `已將 ${guest.name} 分配至 ${table.name}，但同步失敗`, synced ? 'success' : 'error');
                 openTableModal(activeTableId);
             }
         }
 
-        function deleteCurrentTable() {
+        async function deleteCurrentTable() {
             if (!activeTableId) return;
             const table = tables.find(t => t.id === activeTableId);
             if (!table) return;
 
             if (confirm(`您確定要拆除「${table.name}」嗎？該長桌所有賓客將被重新設為「待分配」狀態。`)) {
+                const affectedGuests = [];
                 guests.forEach(g => {
                     if (g.tableId === activeTableId) {
                         g.tableId = "";
+                        affectedGuests.push(g);
                     }
                 });
                 tables = tables.filter(t => t.id !== activeTableId);
                 saveState();
-                showToast(`已成功拆除該長桌座位`, "success");
+                await saveTablesToSheet();
+                await Promise.all(affectedGuests.map(g => syncGuestFields(g.id, { tableId: "" })));
+                showToast(`已成功拆除該長桌座位並同步`, "success");
                 closeTableModal();
             }
         }
@@ -1935,7 +2303,7 @@
         });
 
         // 禮金登記（自動幫該來賓勾選簽到狀態）
-        function handleGiftSubmit(e) {
+        async function handleGiftSubmit(e) {
             e.preventDefault();
             const giver = document.getElementById('gift-giver').value.trim();
             const amount = parseInt(document.getElementById('gift-amount').value);
@@ -1953,17 +2321,26 @@
                 note
             };
 
-            gifts.push(newGift);
+            const result = await api('createGift', newGift);
 
             // 自動將賓客名冊中姓名相符的人標記為「已到場報到」
             const matchedGuest = guests.find(g => g.name === giver && g.attendance === 'yes');
             if (matchedGuest) {
                 matchedGuest.checkedIn = true;
+            }
+
+            if (result.ok) {
+                await loadGuestsFromSheet();
+                const loadedGifts = await loadGiftsFromSheet();
+                if (!loadedGifts) {
+                    gifts.push(newGift);
+                }
                 saveState();
-                showToast(`成功登入！感謝 ${giver} 贈禮 TWD ${amount}，並自動完成報到簽到！`, 'success');
+                showToast(matchedGuest ? `成功登入！感謝 ${giver} 贈禮 TWD ${amount}，並已同步完成報到簽到！` : `成功登入！已同步收取現場非預期賓客 ${giver} 禮金 TWD ${amount}`, 'success');
             } else {
+                gifts.push(newGift);
                 saveState();
-                showToast(`成功登入！已收取現場非預期賓客 ${giver} 禮金 TWD ${amount}`, 'success');
+                showToast(`禮金已先暫存在本機；Google Sheet 同步失敗，請檢查 createGift 後端函式`, 'error');
             }
             
             document.getElementById('gift-form').reset();
@@ -2007,11 +2384,12 @@
             });
         }
 
-        function deleteGiftItem(id) {
+        async function deleteGiftItem(id) {
             if (confirm("您確定要刪除這筆禮金記錄嗎？統計數額將立即調回。")) {
+                const result = await api('deleteGift', id);
                 gifts = gifts.filter(g => g.id !== id);
                 saveState();
-                showToast("禮金帳目已成功刪除！", "success");
+                showToast(result.ok ? "禮金帳目已成功刪除並同步！" : "已先從本機刪除；Google Sheet 同步失敗", result.ok ? "success" : "error");
                 renderGiftLedger();
                 updateDashboard();
             }
