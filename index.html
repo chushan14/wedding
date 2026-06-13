@@ -509,9 +509,9 @@
                     </div>
 
                     <!-- 提交按鈕 -->
-                    <button type="submit" class="w-full bg-coffee-600 hover:bg-coffee-700 text-white font-medium py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-heart-circle-check"></i>
-                        <span>送出出席登記表</span>
+                    <button type="submit" id="submit-btn" class="...">
+                        <i class="fa-solid fa-heart-circle-check" id="btn-icon"></i>
+                        <span id="btn-text">送出出席登記表</span>
                     </button>
                 </form>
             </div>
@@ -1635,8 +1635,8 @@
                             <label class="block text-xs font-semibold text-stone-600 mb-1" for="doneness-${i}">牛排熟度限制 <span class="text-coffee-500">*</span></label>
                             <select id="doneness-${i}" class="w-full px-3 py-2 sm:py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none bg-white">
                                 <option value="">-- 請選擇熟度 --</option>
-                                <option value="3分熟">3分熟 (建議)</option>
-                                <option value="5分熟">5分熟</option>
+                                <option value="3分熟">3分熟</option>
+                                <option value="5分熟">5分熟(建議)</option>
                                 <option value="7分熟">7分熟</option>
                             </select>
                         </div>
@@ -1691,6 +1691,17 @@
         // 提交表單處理
         async function handleRSVPSubmit(e) {
             e.preventDefault();
+
+           // --- 1. 鎖定按鈕 ---
+            const btn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnIcon = document.getElementById('btn-icon');
+    
+            btn.disabled = true; // 禁止重複點擊
+            const originalText = btnText.textContent;
+            btnText.textContent = '傳送中...';
+            btnIcon.className = 'fa-solid fa-spinner fa-spin'; // 換成轉圈動畫
+
             const name = document.getElementById('guest-name').value.trim();
             const phone = document.getElementById('guest-phone').value.trim();
             const relation = document.querySelector('input[name="relation"]:checked')?.value || "男方親友";
@@ -1754,6 +1765,15 @@
                 count = 0;
             }
 
+            // 在建立 newGuest 之前
+            const isDuplicate = guests.some(g => g.name === name);
+                if (isDuplicate) {
+                    alert("您似乎已經登記過了喔！如需修改請聯絡新人～謝謝");
+                    btn.disabled = false; // 恢復按鈕
+                    btnText.textContent = "送出出席登記表";
+                    return; // 中斷函式，不執行送出
+                }
+
             const newGuest = {
                 id: Date.now().toString(),
                 name,
@@ -1774,20 +1794,17 @@
                 checkedIn: false // 新登記預設未簽到
             };
 
-            const result = await api('createGuest', newGuest);
+            // --- 發送 API ---
+            const result = await api('createGuest', { guest: newGuest });
+            guests.push(newGuest);
+            saveState();
 
             if (result.ok) {
-                const loaded = await loadGuestsFromSheet();
-                if (!loaded) {
-                    guests.push(newGuest);
-                    saveState();
-                }
-                showToast(`成功！感謝 ${name} 的回覆與登記，資料已同步到 Google Sheet`, 'success');
-            } else {
-                guests.push(newGuest);
-                saveState();
-                showToast(`已先儲存在本機；Google Sheet 同步失敗，請稍後檢查 Apps Script 設定`, 'error');
-            }
+                  await loadGuestsFromSheet();
+                  showToast(`成功！感謝 ${name} 的回覆與登記`, 'success');
+              } else {
+                  showToast(`同步失敗，請稍後檢查設定`, 'error');
+              }
 
             // 重置表單
             document.getElementById('rsvp-form').reset();
@@ -1797,6 +1814,11 @@
             generateMealInputs();
             toggleInvitationFields();
             toggleCompanionNamesField();
+
+            // --- 2. 恢復按鈕 (放在最後) ---
+            btn.disabled = false;
+            btnText.textContent = originalText;
+            btnIcon.className = 'fa-solid fa-heart-circle-check'; // 還原愛心圖示
 
             // 若非賓客模式，才更新儀表板
             if (currentMode === 'guest') {
@@ -2228,13 +2250,17 @@
         }
 
         function suggestGiftGivers() {
-            const inputVal = document.getElementById('gift-giver').value.trim().toLowerCase();
-            const suggestionBox = document.getElementById('giver-suggestions');
-            suggestionBox.innerHTML = '';
+          const inputVal = document.getElementById('gift-giver').value.trim().toLowerCase();
+          const suggestionBox = document.getElementById('giver-suggestions');
+    
+          // 除錯：看看現在有多少賓客在搜尋範圍內
+          console.log("目前搜尋總賓客數:", guests.length);
+    
+          suggestionBox.innerHTML = '';
 
             if (!inputVal) {
-                suggestionBox.classList.add('hidden');
-                return;
+                  suggestionBox.classList.add('hidden');
+                  return;
             }
 
             // 支援姓名、電話、賓客關係的多重模糊比對
