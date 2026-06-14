@@ -162,7 +162,7 @@
 
     <!-- 封面 Hero Section -->
     <header class="hero-gradient h-[250px] sm:h-[350px] flex flex-col justify-center items-center text-center text-white px-4">
-        <h3 class="font-serif text-3xl sm:text-5xl font-bold tracking-widest mb-2 drop-shadow-md">盧永翰＆曹竹宣 婚禮邀請</h3>
+      <h3 class="font-serif text-3xl sm:text-5xl font-bold tracking-widest mb-2 drop-shadow-md">盧永翰＆曹竹宣 婚禮</h3>
         <p class="text-sm sm:text-lg tracking-wider text-milktea-100 font-light mb-4 drop-shadow-sm">我們決定攜手走入人生新階段,期待能與您分享這份喜悅🤵👰</p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-2 max-w-full text-xs sm:text-sm text-milktea-50">
             <div class="bg-white/10 backdrop-blur-md px-4 sm:px-5 py-2 rounded-full border border-white/20 leading-relaxed">
@@ -1307,7 +1307,7 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('guest-header-hint').classList.remove('hidden');
                 document.getElementById('guest-header-title').innerText = "親愛的賓客您好";
-                document.getElementById('guest-header-desc').innerText = "此頁面為 12 hours closer 專屬回覆系統，請填寫您的出席與餐點意願。";
+                document.getElementById('guest-header-desc').innerText = "此頁面為 永翰＆竹宣婚禮專屬回覆系統，請填寫您的出席與餐點意願。";
                 document.getElementById('guest-footer').classList.remove('hidden');
                 
                 // 只開啟 RSVP 分頁，其他介面全部不可見
@@ -1645,6 +1645,7 @@
                         else if (m.main === 'seafood') mainChinese = "海鮮拼盤";
                         else if (m.main === 'veg') mainChinese = "素食套餐";
                         else if (m.main === 'kid') mainChinese = "兒童餐";
+                        else mainChinese = "餐點待確認";
 
                         const drinkText = m.drinkSwap ? "[換果汁]" : "";
                         const allergyText = (m.allergies && m.allergies.length > 0) ? `(${m.allergies.join('/')})` : "";
@@ -1673,7 +1674,9 @@
                         ${g.invitationAddress ? `<div class="text-[10px] text-stone-400 mt-0.5">${escapeHtml(g.invitationAddress)}</div>` : ''}
                     </td>
                     <td class="px-4 py-3 font-medium">
-                        <div>${g.count} 人 / <span class="text-coffee-600 font-semibold">${tableName}</span></div>
+                        <div class="flex flex-col gap-1">
+                            <div>${renderGuestCountControl(g, 'dashboard')} / <span class="text-coffee-600 font-semibold">${tableName}</span></div>
+                        </div>
                         <div class="text-[10px] text-stone-400 mt-0.5"><i class="fa-solid fa-car mr-1 text-coffee-300"></i>${transportText}</div>
                         ${g.companionNames ? `<div class="text-[10px] text-stone-400 mt-0.5">同行賓客: ${escapeHtml(g.companionNames)}</div>` : ''}
                     </td>
@@ -2047,6 +2050,83 @@
             }
         }
 
+        function renderGuestCountControl(guest, source = 'dashboard') {
+            if (guest.attendance !== 'yes' || currentMode === 'seating') {
+                return `${guest.count || 0} 人`;
+            }
+
+            const options = Array.from({ length: 10 }, (_, index) => index + 1)
+                .map(value => `<option value="${value}" ${Number(guest.count) === value ? 'selected' : ''}>${value} 人</option>`)
+                .join('');
+
+            return `
+                <select onchange="updateGuestAttendanceCount('${guest.id}', this.value, '${source}')" class="px-2 py-1 text-[11px] border border-milktea-200 rounded-lg bg-white text-stone-700 focus:ring-1 focus:ring-coffee-500 outline-none">
+                    ${options}
+                </select>
+            `;
+        }
+
+        function normalizeMealsForCount(guest, nextCount) {
+            const meals = Array.isArray(guest.meals) ? [...guest.meals] : [];
+            const normalized = meals.slice(0, nextCount);
+
+            for (let i = normalized.length; i < nextCount; i++) {
+                normalized.push({
+                    guestName: i === 0 ? guest.name : `待補賓客 ${i + 1}`,
+                    main: "",
+                    doneness: "",
+                    drinkSwap: false,
+                    allergies: ["待確認"]
+                });
+            }
+
+            return normalized.map((meal, index) => ({
+                guestName: meal.guestName || (index === 0 ? guest.name : `賓客 ${index + 1}`),
+                main: meal.main || "",
+                doneness: meal.doneness || "",
+                drinkSwap: meal.drinkSwap === true,
+                allergies: Array.isArray(meal.allergies) ? meal.allergies : []
+            }));
+        }
+
+        async function updateGuestAttendanceCount(guestId, value, source = 'dashboard') {
+            const guest = guests.find(g => g.id === guestId);
+            const nextCount = parseInt(value, 10);
+            if (!guest || !nextCount || nextCount < 1) return;
+
+            const previousCount = Number(guest.count) || 0;
+            if (previousCount === nextCount) return;
+
+            const nextMeals = normalizeMealsForCount(guest, nextCount);
+            const nextCompanionNames = nextMeals
+                .slice(1)
+                .map(meal => meal.guestName)
+                .filter(Boolean)
+                .join('、');
+
+            guest.count = nextCount;
+            guest.meals = nextMeals;
+            guest.companionNames = nextCompanionNames;
+            saveState();
+            refreshAllViews();
+
+            const ok = await syncGuestFields(guestId, {
+                count: nextCount,
+                meals: nextMeals,
+                companionNames: nextCompanionNames
+            });
+
+            if (ok) {
+                showToast(`${guest.name} 出席人數已調整為 ${nextCount} 人。`, "success");
+            } else {
+                showToast(`${guest.name} 人數已先存在本機；Supabase 同步失敗。`, "error");
+            }
+
+            if (source === 'modal' && activeTableId) {
+                openTableModal(activeTableId);
+            }
+        }
+
         // ------------------ 座位配置與地圖系統 ------------------
         function renderTableGrid() {
             const grid = document.getElementById('table-grid');
@@ -2093,7 +2173,7 @@
                         <div class="p-3 text-[10px] text-stone-500 border-t border-stone-100 divide-y divide-stone-50">
                             ${assignedGuests.length > 0 ? assignedGuests.map(g => {
                                 const mealsSummary = g.meals.map(m => {
-                                    let c = m.main === 'veg' ? '素' : m.main === 'kid' ? '兒' : '葷';
+                                    let c = m.main === 'veg' ? '素' : m.main === 'kid' ? '兒' : m.main ? '葷' : '待';
                                     if (m.allergies && m.allergies.length > 0 && m.allergies[0] !== "無特別限制") m.allergies.forEach(al => { if (al !== "無特別限制") c += '!'; });
                                     return c;
                                 }).join('/');
@@ -2145,8 +2225,9 @@
                 guestCard.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="font-bold text-stone-700">${escapeHtml(g.name)} <span class="text-[10px] bg-stone-200 text-stone-600 px-1 rounded">${g.count}人</span></p>
+                            <p class="font-bold text-stone-700">${escapeHtml(g.name)}</p>
                             <p class="text-[10px] text-stone-400 mt-0.5">${g.relation} | 主餐: ${mainSummary}</p>
+                            <div class="mt-1">${renderGuestCountControl(g, 'seating-list')}</div>
                         </div>
                         <select onchange="quickAssign('${g.id}', this.value)" class="text-[10px] bg-white border border-stone-200 rounded p-1 outline-none focus:ring-1 focus:ring-coffee-400">
                             <option value="">選桌..</option>
@@ -2178,8 +2259,9 @@
                 guestCard.innerHTML = `
                     <div class="flex justify-between items-center">
                         <div>
-                            <p class="font-bold text-stone-700">${escapeHtml(g.name)} <span class="text-[10px] bg-stone-200 text-stone-600 px-1 rounded">${g.count}人</span></p>
+                            <p class="font-bold text-stone-700">${escapeHtml(g.name)}</p>
                             <p class="text-[10px] text-stone-400 mt-0.5">${g.relation}</p>
+                            <div class="mt-1">${renderGuestCountControl(g, 'seating-filter')}</div>
                         </div>
                         <select onchange="quickAssign('${g.id}', this.value)" class="text-[10px] bg-white border border-stone-200 rounded p-1 outline-none">
                             <option value="">選桌..</option>
@@ -2317,7 +2399,7 @@
                         else if (m.main === 'lamb') mainChinese = "🐑小羔羊排";
                         else if (m.main === 'veg') mainChinese = "🥗素食套餐";
                         else if (m.main === 'kid') mainChinese = "👶兒童餐";
-                        else mainChinese = "其他未設定";
+                        else mainChinese = "餐點待確認";
 
                         let allergiesText = "";
                         if (m.allergies && m.allergies.length > 0 && m.allergies[0] !== "無特別限制") {
@@ -2328,7 +2410,7 @@
 
                         return `
                             <div class="text-[11px] text-stone-600 flex items-center flex-wrap py-0.5">
-                                <span class="bg-stone-200 text-stone-700 px-1 rounded-md font-mono scale-90 mr-1">賓客 ${idx + 1}</span>
+                                <span class="bg-stone-200 text-stone-700 px-1 rounded-md font-mono scale-90 mr-1">${escapeHtml(m.guestName || `賓客 ${idx + 1}`)}</span>
                                 <span class="font-medium">${mainChinese}</span>
                                 ${allergiesText}
                                 ${drinkText}
@@ -2348,6 +2430,7 @@
                             <div>
                                 <span class="font-bold text-stone-800 text-sm">${escapeHtml(g.name)}</span>
                                 <span class="text-[10px] text-stone-400 ml-1.5">(${g.count}人, ${g.relation})</span>
+                                ${!isSeatingReadOnly ? `<div class="mt-1">${renderGuestCountControl(g, 'modal')}</div>` : ''}
                             </div>
                             ${actionBtnHtml}
                         </div>
