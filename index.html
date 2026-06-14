@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>12 hours closer - 婚禮一站式管理系統</title>
+    <title>盧永翰＆曹竹宣 婚禮</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
@@ -162,7 +162,7 @@
 
     <!-- 封面 Hero Section -->
     <header class="hero-gradient h-[250px] sm:h-[350px] flex flex-col justify-center items-center text-center text-white px-4">
-      <h3 class="font-serif text-3xl sm:text-5xl font-bold tracking-widest mb-2 drop-shadow-md">盧永翰＆曹竹宣 婚禮</h3>
+        <h3 class="font-serif text-3xl sm:text-5xl font-bold tracking-widest mb-2 drop-shadow-md">盧永翰＆曹竹宣 婚禮</h3>
         <p class="text-sm sm:text-lg tracking-wider text-milktea-100 font-light mb-4 drop-shadow-sm">我們決定攜手走入人生新階段,期待能與您分享這份喜悅🤵👰</p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-2 max-w-full text-xs sm:text-sm text-milktea-50">
             <div class="bg-white/10 backdrop-blur-md px-4 sm:px-5 py-2 rounded-full border border-white/20 leading-relaxed">
@@ -316,12 +316,16 @@
                             <h2 class="text-lg font-bold text-coffee-800"><i class="fa-solid fa-address-book text-coffee-500 mr-2"></i>當日出席報到清單</h2>
                             <span class="text-xs text-stone-400">勾選「報到狀態」即可現場簽到</span>
                         </div>
-                        <!-- 動態搜尋出席名單 -->
-                        <div class="relative w-full sm:w-64">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-stone-400">
-                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                            </span>
-                            <input type="text" id="attendance-search" oninput="updateDashboard()" placeholder="搜尋姓名、電話、關係、桌號..." class="w-full pl-8 pr-3 py-1.5 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none">
+                        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <div class="relative w-full sm:w-64">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-stone-400">
+                                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                </span>
+                                <input type="text" id="attendance-search" oninput="updateDashboard()" placeholder="搜尋姓名、電話、關係、桌號..." class="w-full pl-8 pr-3 py-1.5 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none">
+                            </div>
+                            <button onclick="exportGuestListExcel()" class="w-full sm:w-auto justify-center bg-milktea-50 text-coffee-600 hover:bg-milktea-100 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all flex items-center border border-milktea-200 whitespace-nowrap">
+                                <i class="fa-solid fa-file-excel mr-1.5"></i>匯出賓客 Excel
+                            </button>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -610,6 +614,20 @@
                             </div>
                         </div>
                         <div>
+                            <label class="block text-xs font-semibold text-stone-600 mb-1" for="gift-relation">與新人的關係</label>
+                            <select id="gift-relation" required class="w-full px-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none bg-white">
+                                <option value="">請選擇關係</option>
+                                <option value="男方親友">男方親友</option>
+                                <option value="女方親友">女方親友</option>
+                                <option value="男方共同好友">男方好友</option>
+                                <option value="女方共同好友">女方好友</option>
+                                <option value="男方同事">男方同事</option>
+                                <option value="女方同事">女方同事</option>
+                                <option value="其他">其他</option>
+                            </select>
+                            <p class="text-[11px] text-stone-400 mt-1">若從已登記賓客名單點選，系統會自動帶入 RSVP 關係。</p>
+                        </div>
+                        <div>
                             <label class="block text-xs font-semibold text-stone-600 mb-1" for="gift-note">備註</label>
                             <input type="text" id="gift-note" class="w-full px-4 py-2 border border-milktea-200 rounded-lg text-sm focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none" placeholder="例如：附謝卡、代領伴手禮等">
                         </div>
@@ -626,10 +644,10 @@
                             <h3 class="text-lg font-bold text-stone-800"><i class="fa-solid fa-list-check text-stone-700 mr-2"></i>禮金登記帳目簿</h3>
                             <p class="text-xs text-stone-400 mt-1" id="gift-list-stat">目前累計：0 筆登記</p>
                         </div>
-                        <div class="flex space-x-2">
-                            <input type="text" id="gift-search" oninput="renderGiftLedger()" placeholder="搜尋送禮人姓名..." class="px-3 py-1.5 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none">
-                            <button onclick="exportGiftLedger()" class="bg-milktea-50 text-coffee-600 hover:bg-milktea-100 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all flex items-center border border-milktea-200">
-                                <i class="fa-solid fa-download mr-1"></i>匯出 CSV
+                        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <input type="text" id="gift-search" oninput="renderGiftLedger()" placeholder="搜尋送禮人姓名..." class="w-full sm:w-44 px-3 py-1.5 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none">
+                            <button onclick="exportGiftLedgerExcel()" class="w-full sm:w-auto justify-center bg-milktea-50 text-coffee-600 hover:bg-milktea-100 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all flex items-center border border-milktea-200 whitespace-nowrap">
+                                <i class="fa-solid fa-file-excel mr-1.5"></i>匯出禮金 Excel
                             </button>
                         </div>
                     </div>
@@ -641,6 +659,7 @@
                                 <tr>
                                     <th class="px-4 py-3">序號</th>
                                     <th class="px-4 py-3">送禮賓客</th>
+                                    <th class="px-4 py-3">與新人關係</th>
                                     <th class="px-4 py-3 text-right">禮金金額</th>
                                     <th class="px-4 py-3">備註細節</th>
                                     <th class="px-4 py-3 text-center">操作</th>
@@ -695,9 +714,9 @@
                             <h3 class="text-lg font-bold text-stone-800"><i class="fa-solid fa-parking text-coffee-500 mr-2"></i>當日車位折抵清單</h3>
                             <p class="text-xs text-stone-400 mt-1" id="parking-list-stat">已登記：0 輛車</p>
                         </div>
-                        <div class="flex space-x-2">
-                            <input type="text" id="parking-search" oninput="renderParkingLedger()" placeholder="搜尋姓名或車牌..." class="px-3 py-1.5 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none">
-                            <button onclick="exportParkingLedger()" class="bg-coffee-600 hover:bg-coffee-700 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-all flex items-center shadow-sm">
+                        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <input type="text" id="parking-search" oninput="renderParkingLedger()" placeholder="搜尋姓名或車牌..." class="w-full sm:w-44 px-3 py-1.5 text-xs border border-milktea-200 rounded-lg focus:ring-1 focus:ring-coffee-500 outline-none">
+                            <button onclick="exportParkingLedger()" class="w-full sm:w-auto justify-center bg-coffee-600 hover:bg-coffee-700 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-all flex items-center shadow-sm whitespace-nowrap">
                                 <i class="fa-solid fa-file-csv mr-1.5"></i>匯出飯店折抵 CSV
                             </button>
                         </div>
@@ -778,6 +797,25 @@
                 <button onclick="saveTableModalEdit()" class="bg-coffee-600 hover:bg-coffee-700 text-white text-xs font-semibold py-2 px-6 rounded-lg transition-all shadow-sm">
                     確認更新設定
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 彈出視窗：補賓客出席與餐點資料 -->
+    <div id="guest-meal-modal" class="fixed inset-0 bg-stone-950/40 backdrop-blur-sm z-50 justify-center items-center hidden">
+        <div class="bg-white rounded-2xl w-full max-w-2xl p-6 mx-4 shadow-2xl border border-milktea-100 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-start mb-4 border-b border-stone-100 pb-3">
+                <div>
+                    <p class="text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">補登出席資料</p>
+                    <h3 id="guest-meal-modal-title" class="text-lg font-bold text-coffee-800">賓客餐點資料</h3>
+                    <p class="text-xs text-stone-400 mt-1">可補每位賓客姓名、主餐、熟度與飲食禁忌。</p>
+                </div>
+                <button onclick="closeGuestMealModal()" class="text-stone-400 hover:text-stone-600"><i class="fa-solid fa-times text-xl"></i></button>
+            </div>
+            <div id="guest-meal-edit-container" class="flex-1 overflow-y-auto space-y-4 pr-1"></div>
+            <div class="mt-6 flex space-x-3 border-t border-stone-100 pt-3 justify-end">
+                <button onclick="closeGuestMealModal()" class="bg-stone-100 text-stone-600 hover:bg-stone-200 text-xs font-semibold py-2 px-4 rounded-lg transition-all">取消</button>
+                <button onclick="saveGuestMealEdit()" class="bg-coffee-600 hover:bg-coffee-700 text-white text-xs font-semibold py-2 px-6 rounded-lg transition-all shadow-sm">儲存並同步</button>
             </div>
         </div>
     </div>
@@ -880,6 +918,7 @@
         ];
 
         let activeTableId = ""; // 目前正在彈出視窗中編輯的桌號
+        let activeMealGuestId = "";
         let isAdminLoggedIn = false; // 是否已解鎖後台
         let currentMode = "admin"; // admin / guest / seating
         let appSettings = {
@@ -965,6 +1004,7 @@
             return {
                 id: String(row.id),
                 giver: row.giver || "",
+                relation: row.relation || "",
                 amount: Number(row.amount) || 0,
                 note: row.note || ""
             };
@@ -1018,6 +1058,7 @@
                     const gift = {
                         id: String(payload.id || `gift-${Date.now()}`),
                         giver: payload.giver || "",
+                        relation: payload.relation || "",
                         amount: Number(payload.amount) || 0,
                         note: payload.note || ""
                     };
@@ -1307,7 +1348,7 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('guest-header-hint').classList.remove('hidden');
                 document.getElementById('guest-header-title').innerText = "親愛的賓客您好";
-                document.getElementById('guest-header-desc').innerText = "此頁面為 永翰＆竹宣婚禮專屬回覆系統，請填寫您的出席與餐點意願。";
+                document.getElementById('guest-header-desc').innerText = "此頁面為 12 hours closer 專屬回覆系統，請填寫您的出席與餐點意願。";
                 document.getElementById('guest-footer').classList.remove('hidden');
                 
                 // 只開啟 RSVP 分頁，其他介面全部不可見
@@ -1681,8 +1722,9 @@
                         ${g.companionNames ? `<div class="text-[10px] text-stone-400 mt-0.5">同行賓客: ${escapeHtml(g.companionNames)}</div>` : ''}
                     </td>
                     <td class="px-4 py-3 text-stone-600 leading-relaxed">${mealDetailsText}</td>
-                    <td class="px-4 py-3">
-                        <button onclick="deleteGuest('${g.id}')" class="text-stone-400 hover:text-rose-600 text-xs" title="刪除賓客"><i class="fa-solid fa-trash-can"></i></button>
+                    <td class="px-4 py-3 space-y-1">
+                        <button onclick="openGuestMealModal('${g.id}')" class="block text-coffee-600 hover:text-coffee-800 text-xs whitespace-nowrap" title="補餐點資料"><i class="fa-solid fa-pen-to-square mr-1"></i>補餐點</button>
+                        <button onclick="deleteGuest('${g.id}')" class="block text-stone-400 hover:text-rose-600 text-xs whitespace-nowrap" title="刪除賓客"><i class="fa-solid fa-trash-can mr-1"></i>刪除</button>
                     </td>
                 `;
                 summaryTable.appendChild(tr);
@@ -1858,7 +1900,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-stone-600 mb-1">餐前酒調整</label>
                         <label class="flex items-center min-h-10 px-3 py-2 bg-stone-50 rounded-lg text-xs text-stone-700 cursor-pointer mt-1">
-                            <input type="checkbox" id="drink-swap-${i}" class="mr-2 rounded text-coffee-500 focus:ring-coffee-400"> 餐前酒更換為果汁
+                            <input type="checkbox" id="drink-swap-${i}" class="mr-2 rounded text-coffee-500 focus:ring-coffee-400"> 餐前酒更換為健康果汁
                         </label>
                     </div>
                 `;
@@ -2087,6 +2129,183 @@
                 drinkSwap: meal.drinkSwap === true,
                 allergies: Array.isArray(meal.allergies) ? meal.allergies : []
             }));
+        }
+
+        function getGiftRelation(gift) {
+            const matchedGuest = guests.find(g => g.name === gift.giver);
+            return gift.relation || matchedGuest?.relation || "-";
+        }
+
+        function downloadExcelFile(filename, sheetTitle, headers, rows) {
+            const tableRows = rows.map(row => `
+                <tr>${row.map(cell => `<td>${escapeHtml(String(cell ?? ""))}</td>`).join('')}</tr>
+            `).join('');
+            const html = `
+                <html>
+                <head><meta charset="UTF-8"></head>
+                <body>
+                    <table border="1">
+                        <tr><th colspan="${headers.length}">${escapeHtml(sheetTitle)}</th></tr>
+                        <tr>${headers.map(header => `<th>${escapeHtml(header)}</th>`).join('')}</tr>
+                        ${tableRows}
+                    </table>
+                </body>
+                </html>
+            `;
+            const blob = new Blob(["\uFEFF", html], { type: "application/vnd.ms-excel;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        function formatMealForExport(guest) {
+            if (!Array.isArray(guest.meals) || guest.meals.length === 0) return "";
+            return guest.meals.map((meal, index) => {
+                const mainMap = {
+                    ribeye: "牛肋排",
+                    seafood: "海鮮拼盤",
+                    lamb: "小羔羊排",
+                    veg: "素食套餐",
+                    kid: "兒童餐"
+                };
+                const mealName = meal.guestName || `賓客 ${index + 1}`;
+                const main = mainMap[meal.main] || "餐點待確認";
+                const doneness = meal.doneness ? `/${meal.doneness}` : "";
+                const drink = meal.drinkSwap ? "/換果汁" : "";
+                const allergies = Array.isArray(meal.allergies) && meal.allergies.length ? `/禁忌:${meal.allergies.join("、")}` : "";
+                return `${mealName}:${main}${doneness}${drink}${allergies}`;
+            }).join("；");
+        }
+
+        function exportGuestListExcel() {
+            const rows = guests.map(g => {
+                const tableObj = tables.find(t => t.id === g.tableId);
+                return [
+                    g.name,
+                    g.phone || "",
+                    g.relation || "",
+                    g.attendance === "yes" ? "會出席" : "可惜無法到場",
+                    g.count || 0,
+                    g.companionNames || "",
+                    tableObj ? tableObj.name : "未排座",
+                    g.checkedIn ? "已報到" : "未報到",
+                    g.invitation || "",
+                    g.invitationEmail || "",
+                    g.invitationAddress || "",
+                    g.selfDrive === "yes" ? "開車" : "非開車",
+                    g.carPlate || "",
+                    formatMealForExport(g),
+                    g.wish || ""
+                ];
+            });
+
+            downloadExcelFile(
+                `盧永翰_曹竹宣_婚禮賓客名單_${new Date().toISOString().slice(0,10)}.xls`,
+                "婚禮賓客名單",
+                ["姓名", "電話", "與新人關係", "出席狀態", "人數", "同行賓客", "桌號", "報到", "喜帖需求", "Email", "地址", "交通", "車牌", "餐點與飲食禁忌", "祝福"],
+                rows
+            );
+            showToast("賓客名單 Excel 已成功下載！", "success");
+        }
+
+        function openGuestMealModal(guestId) {
+            const guest = guests.find(g => g.id === guestId);
+            if (!guest) return;
+
+            activeMealGuestId = guestId;
+            guest.meals = normalizeMealsForCount(guest, Number(guest.count) || 1);
+            document.getElementById('guest-meal-modal-title').innerText = `${guest.name} - ${guest.count} 位賓客`;
+            const container = document.getElementById('guest-meal-edit-container');
+            container.innerHTML = '';
+
+            guest.meals.forEach((meal, index) => {
+                const allergiesText = Array.isArray(meal.allergies) ? meal.allergies.join('、') : '';
+                const item = document.createElement('div');
+                item.className = "bg-stone-50 p-4 rounded-xl border border-stone-200 space-y-3";
+                item.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-coffee-700">賓客 ${index + 1}</span>
+                        <span class="text-[10px] text-stone-400">此資料會同步到餐點統計</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-stone-600 mb-1">姓名</label>
+                            <input id="edit-meal-name-${index}" value="${escapeHtml(meal.guestName || '')}" class="w-full px-3 py-2 border border-milktea-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-coffee-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-stone-600 mb-1">主餐</label>
+                            <select id="edit-meal-main-${index}" class="w-full px-3 py-2 border border-milktea-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-coffee-500 bg-white">
+                                <option value="" ${!meal.main ? 'selected' : ''}>餐點待確認</option>
+                                <option value="ribeye" ${meal.main === 'ribeye' ? 'selected' : ''}>美國頂級低溫烘烤牛肋排6oz</option>
+                                <option value="seafood" ${meal.main === 'seafood' ? 'selected' : ''}>主廚時令鮮魚與南非鮮蠔及明蝦</option>
+                                <option value="lamb" ${meal.main === 'lamb' ? 'selected' : ''}>紐西蘭嚴選小羔羊排</option>
+                                <option value="veg" ${meal.main === 'veg' ? 'selected' : ''}>素食套餐</option>
+                                <option value="kid" ${meal.main === 'kid' ? 'selected' : ''}>兒童餐</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-stone-600 mb-1">牛排熟度</label>
+                            <select id="edit-meal-doneness-${index}" class="w-full px-3 py-2 border border-milktea-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-coffee-500 bg-white">
+                                <option value="" ${!meal.doneness ? 'selected' : ''}>不適用/待確認</option>
+                                <option value="3分熟" ${meal.doneness === '3分熟' ? 'selected' : ''}>3分熟</option>
+                                <option value="5分熟" ${meal.doneness === '5分熟' ? 'selected' : ''}>5分熟</option>
+                                <option value="7分熟" ${meal.doneness === '7分熟' ? 'selected' : ''}>7分熟</option>
+                            </select>
+                        </div>
+                        <label class="flex items-center min-h-10 px-3 py-2 bg-white rounded-lg text-xs text-stone-700 cursor-pointer border border-milktea-100">
+                            <input type="checkbox" id="edit-meal-drink-${index}" ${meal.drinkSwap ? 'checked' : ''} class="mr-2 rounded text-coffee-500 focus:ring-coffee-400"> 餐前酒更換為健康果汁
+                        </label>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-stone-600 mb-1">飲食禁忌</label>
+                        <input id="edit-meal-allergies-${index}" value="${escapeHtml(allergiesText)}" placeholder="例：不吃牛、花生過敏；多項可用頓號分隔" class="w-full px-3 py-2 border border-milktea-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-coffee-500">
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            document.getElementById('guest-meal-modal').classList.add('modal-active');
+        }
+
+        function closeGuestMealModal() {
+            document.getElementById('guest-meal-modal').classList.remove('modal-active');
+            activeMealGuestId = "";
+        }
+
+        async function saveGuestMealEdit() {
+            const guest = guests.find(g => g.id === activeMealGuestId);
+            if (!guest) return;
+
+            const count = Number(guest.count) || 1;
+            const nextMeals = [];
+            for (let i = 0; i < count; i++) {
+                const guestName = document.getElementById(`edit-meal-name-${i}`).value.trim() || (i === 0 ? guest.name : `賓客 ${i + 1}`);
+                const allergiesRaw = document.getElementById(`edit-meal-allergies-${i}`).value.trim();
+                nextMeals.push({
+                    guestName,
+                    main: document.getElementById(`edit-meal-main-${i}`).value,
+                    doneness: document.getElementById(`edit-meal-doneness-${i}`).value,
+                    drinkSwap: document.getElementById(`edit-meal-drink-${i}`).checked,
+                    allergies: allergiesRaw ? allergiesRaw.split(/[、,，/]/).map(item => item.trim()).filter(Boolean) : []
+                });
+            }
+
+            const nextCompanionNames = nextMeals.slice(1).map(meal => meal.guestName).filter(Boolean).join('、');
+            guest.meals = nextMeals;
+            guest.companionNames = nextCompanionNames;
+            saveState();
+
+            const ok = await syncGuestFields(guest.id, {
+                meals: nextMeals,
+                companionNames: nextCompanionNames
+            });
+            showToast(ok ? "賓客餐點資料已補齊並同步。" : "餐點資料已先存在本機；Supabase 同步失敗。", ok ? "success" : "error");
+            closeGuestMealModal();
+            refreshAllViews();
         }
 
         async function updateGuestAttendanceCount(guestId, value, source = 'dashboard') {
@@ -2421,7 +2640,10 @@
                     // 唯讀模式下不顯示「移出長桌」按鈕
                     const actionBtnHtml = isSeatingReadOnly 
                         ? '' 
-                        : `<button onclick="removeGuestFromTable('${g.id}')" class="text-coffee-600 hover:text-coffee-800 text-xs font-semibold"><i class="fa-solid fa-user-minus mr-1"></i> 移出長桌</button>`;
+                        : `<div class="flex flex-col items-end gap-1">
+                            <button onclick="openGuestMealModal('${g.id}')" class="text-coffee-600 hover:text-coffee-800 text-xs font-semibold"><i class="fa-solid fa-pen-to-square mr-1"></i>補餐點</button>
+                            <button onclick="removeGuestFromTable('${g.id}')" class="text-coffee-600 hover:text-coffee-800 text-xs font-semibold"><i class="fa-solid fa-user-minus mr-1"></i>移出長桌</button>
+                        </div>`;
 
                     const div = document.createElement('div');
                     div.className = "bg-stone-50 p-3 rounded-xl border border-stone-200 flex flex-col space-y-2";
@@ -2592,6 +2814,7 @@
                 
                 div.onclick = () => {
                     document.getElementById('gift-giver').value = m.name;
+                    document.getElementById('gift-relation').value = m.relation || "";
                     document.getElementById('gift-note').value = `${m.relation}，桌位：${tableName}，共 ${m.count} 人`;
                     suggestionBox.classList.add('hidden');
                     showToast(`已成功連結已登記賓客 [${m.name}] 的資訊與桌號！`, "success");
@@ -2620,16 +2843,20 @@
             e.preventDefault();
             const giver = document.getElementById('gift-giver').value.trim();
             const amount = parseInt(document.getElementById('gift-amount').value);
+            const matchedGuest = guests.find(g => g.name === giver && g.attendance === 'yes');
+            const relationInput = document.getElementById('gift-relation');
+            const relation = relationInput.value || matchedGuest?.relation || "";
             const note = document.getElementById('gift-note').value.trim();
 
-            if (!giver || isNaN(amount)) {
-                showToast("請填寫正確的姓名與禮金金額！", "error");
+            if (!giver || isNaN(amount) || !relation) {
+                showToast("請填寫正確的姓名、禮金金額與新人關係！", "error");
                 return;
             }
 
             const newGift = {
                 id: `gift-${Date.now()}`,
                 giver,
+                relation,
                 amount,
                 note
             };
@@ -2637,7 +2864,6 @@
             const result = await api('createGift', newGift);
 
             // 自動將賓客名冊中姓名相符的人標記為「已到場報到」
-            const matchedGuest = guests.find(g => g.name === giver && g.attendance === 'yes');
             if (matchedGuest) {
                 matchedGuest.checkedIn = true;
             }
@@ -2668,14 +2894,19 @@
             const searchVal = document.getElementById('gift-search').value.toLowerCase().trim();
             tableBody.innerHTML = '';
 
-            const filteredGifts = gifts.filter(g => g.giver.toLowerCase().includes(searchVal) || g.note.toLowerCase().includes(searchVal));
+            const filteredGifts = gifts.filter(g => {
+                const relation = getGiftRelation(g).toLowerCase();
+                return g.giver.toLowerCase().includes(searchVal)
+                    || relation.includes(searchVal)
+                    || (g.note || "").toLowerCase().includes(searchVal);
+            });
 
             document.getElementById('gift-list-stat').innerText = `目前累計：${filteredGifts.length} 筆登記，總金額：$${filteredGifts.reduce((s,g)=>s+g.amount,0).toLocaleString()} 元`;
 
             if (filteredGifts.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="px-4 py-8 text-center text-stone-400 text-xs">尚無相關禮金登錄紀錄</td>
+                        <td colspan="6" class="px-4 py-8 text-center text-stone-400 text-xs">尚無相關禮金登錄紀錄</td>
                     </tr>
                 `;
                 return;
@@ -2687,6 +2918,7 @@
                 tr.innerHTML = `
                     <td class="px-4 py-3 text-stone-400 font-mono">${index + 1}</td>
                     <td class="px-4 py-3 font-semibold text-stone-700">${escapeHtml(g.giver)}</td>
+                    <td class="px-4 py-3 text-stone-500">${escapeHtml(getGiftRelation(g))}</td>
                     <td class="px-4 py-3 text-right font-mono font-bold text-coffee-600">$${g.amount.toLocaleString()}</td>
                     <td class="px-4 py-3 text-stone-500">${escapeHtml(g.note || '-')}</td>
                     <td class="px-4 py-3 text-center">
@@ -2729,6 +2961,29 @@
             link.click();
             document.body.removeChild(link);
             showToast("禮金簿 CSV 已成功下載！", "success");
+        }
+
+        function exportGiftLedgerExcel() {
+            if (gifts.length === 0) {
+                showToast("目前尚無禮金數據可以匯出！", "error");
+                return;
+            }
+
+            const rows = gifts.map((gift, index) => [
+                index + 1,
+                gift.giver,
+                getGiftRelation(gift),
+                gift.amount,
+                gift.note || ""
+            ]);
+
+            downloadExcelFile(
+                `盧永翰_曹竹宣_婚禮電子禮金簿_${new Date().toISOString().slice(0,10)}.xls`,
+                "婚禮電子禮金簿",
+                ["序號", "送禮人姓名", "與新人關係", "禮金金額", "備註細節"],
+                rows
+            );
+            showToast("禮金明細 Excel 已成功下載！", "success");
         }
 
         // ------------------ 車位折抵登記與管理系統 ------------------
