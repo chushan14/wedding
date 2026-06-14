@@ -1795,7 +1795,7 @@
             };
 
             // --- 發送 API ---
-            const result = await api('createGuest', { guest: newGuest });
+            const result = await api('createGuest', newGuest);
             guests.push(newGuest);
             saveState();
 
