@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -10,6 +11,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,11 +162,15 @@
 
     <!-- 封面 Hero Section -->
     <header class="hero-gradient h-[250px] sm:h-[350px] flex flex-col justify-center items-center text-center text-white px-4">
-        <h1 class="font-serif text-3xl sm:text-5xl font-bold tracking-widest mb-2 drop-shadow-md">12 hours closer</h1>
-        <p class="text-sm sm:text-lg tracking-wider text-milktea-100 font-light mb-4 drop-shadow-sm">十二小時的距離，讓我們更走近彼此的永恆</p>
-        <div class="bg-white/10 backdrop-blur-md px-4 sm:px-6 py-2 rounded-2xl sm:rounded-full border border-white/20 text-xs sm:text-sm tracking-normal sm:tracking-widest text-milktea-50 max-w-full leading-relaxed">
-            <i class="fa-regular fa-calendar-check mr-2"></i>2027.03.07 11:30 AM 入席 ｜ 12:00 PM 開席 | 台北勞瑞斯牛肋排餐廳 Lawry's Taipei
-        </div>
+        <h2 class="font-serif text-3xl sm:text-5xl font-bold tracking-widest mb-2 drop-shadow-md">盧永翰＆曹竹宣 婚禮</h2>
+        <p class="text-sm sm:text-lg tracking-wider text-milktea-100 font-light mb-4 drop-shadow-sm">我們決定攜手走入人生新階段,期待能與您分享這份喜悅🤵👰</p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-2 max-w-full text-xs sm:text-sm text-milktea-50">
+            <div class="bg-white/10 backdrop-blur-md px-4 sm:px-5 py-2 rounded-full border border-white/20 leading-relaxed">
+                <i class="fa-regular fa-calendar-check mr-2"></i>2027.03.07 11:30 AM 入席 ｜ 12:00 PM 開席
+            </div>
+            <div class="bg-white/10 backdrop-blur-md px-4 sm:px-5 py-2 rounded-full border border-white/20 leading-relaxed">
+                <i class="fa-solid fa-location-dot mr-2"></i>台北勞瑞斯牛肋排餐廳 Lawry's Taipei
+            </div>
     </header>
 
     <!-- ==================== 鎖定畫面 / 密碼登入 (Admin Login Screen) ==================== -->
@@ -357,7 +364,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-stone-600 mb-1" for="guest-name">主要賓客姓名 <span class="text-coffee-500">*</span></label>
-                            <input type="text" id="guest-name" required class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all" placeholder="請輸入您的姓名">
+                            <input type="text" id="guest-name" required oninput="syncPrimaryMealGuestName()" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all" placeholder="請輸入您的姓名">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-stone-600 mb-1" for="guest-phone">聯絡電話 <span class="text-coffee-500">*</span></label>
@@ -422,21 +429,16 @@
                     <!-- 出席意願 -->
                     <div>
                         <label class="block text-sm font-medium text-stone-600 mb-2">是否出席盛宴 <span class="text-coffee-500">*</span></label>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <label class="choice-card flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
                                 <input type="radio" name="attendance" value="yes" checked onchange="toggleAttendanceFields(true)" class="sr-only peer">
                                 <i class="fa-regular fa-face-smile text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
-                                <span class="text-sm font-medium">受邀出席</span>
-                            </label>
-                            <label class="choice-card flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
-                                <input type="radio" name="attendance" value="gift-only" onchange="toggleAttendanceFields(false)" class="sr-only peer">
-                                <i class="fa-solid fa-gift text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
-                                <span class="text-sm font-medium text-center">禮到人不到</span>
+                                <span class="text-sm font-medium">會出席</span>
                             </label>
                             <label class="choice-card flex flex-col items-center justify-center border-2 border-milktea-100 rounded-xl p-3 cursor-pointer hover:bg-milktea-50 hover:border-milktea-300 transition-all checked-card">
                                 <input type="radio" name="attendance" value="no" onchange="toggleAttendanceFields(false)" class="sr-only peer">
                                 <i class="fa-regular fa-face-frown text-lg mb-1 text-stone-400 peer-checked:text-coffee-500"></i>
-                                <span class="text-sm font-medium">不克出席</span>
+                                <span class="text-sm font-medium">可惜無法到場</span>
                             </label>
                         </div>
                     </div>
@@ -466,7 +468,8 @@
 
                         <div id="companion-names-wrapper" class="hidden">
                             <label class="block text-sm font-medium text-stone-600 mb-1" for="companion-names">其他賓客姓名 <span class="text-coffee-500">*</span></label>
-                            <textarea id="companion-names" rows="3" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all" placeholder="若總人數超過 2 位，請填寫其他賓客姓名，以利製作名牌。例：王小明、王小華"></textarea>
+                            <textarea id="companion-names" rows="3" class="w-full px-4 py-2 border border-milktea-200 rounded-lg focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 outline-none text-sm transition-all" placeholder="請填寫同行賓客姓名，以利我們通知餐廳每位賓客的餐點。例：王小明、王小華"></textarea>
+                            <p class="text-[11px] text-stone-400 mt-1">出席總人數大於 1 位時必填，請用頓號或換行分隔。</p>
                         </div>
 
                         <!-- 依據人數動態生成餐點與特殊要求選擇 -->
@@ -879,73 +882,210 @@
             welcomeMessage: "請完成填寫，以利我們安排座位與餐點"
         };
 
-        const STORAGE_KEY = "twelve_hours_closer_wedding_data_v1";
-        // GitHub Pages 版：請貼 Apps Script「網頁應用程式」的 /exec URL。
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMUBRAeVyaF3Ky16BjmSY1c-zgruJEurPZPllPGVBF_vBlRPqrMvlONw2k2NMIyHmE/exec";
+        const STORAGE_KEY = "twelve_hours_closer_wedding_supabase_v1";
+        // Supabase 版：請到 Supabase Project Settings > API 複製 Project URL 與 anon public key。
+        const SUPABASE_URL = "https://mzvqeibzrdjumsacifet.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_9ikOABDJt3xQwoMVLD6fGA_CeJ19hU2";
+        const ENABLE_SUPABASE_SYNC = SUPABASE_URL.includes(".supabase.co") && SUPABASE_ANON_KEY.length > 40;
+        const supabaseClient = ENABLE_SUPABASE_SYNC
+            ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+            : null;
         // 正式 GitHub Pages 網址可留空，系統會自動使用目前頁面網址產生分享連結。
         const PUBLIC_SITE_URL = "";
-        const ENABLE_GOOGLE_SHEET_SYNC = GOOGLE_SCRIPT_URL.includes("script.google.com");
 
-        function api(action, payload) {
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                return new Promise(resolve => {
-                    const runner = google.script.run
-                        .withSuccessHandler(result => resolve(result || { ok: true }))
-                        .withFailureHandler(error => {
-                            console.warn("Google Sheet 同步失敗。", error);
-                            resolve({ ok: false, error: error.message || String(error) });
-                        });
-
-                    if (typeof runner[action] !== 'function') {
-                        resolve({ ok: false, error: `找不到後端函式：${action}` });
-                        return;
-                    }
-
-                    if (typeof payload === 'undefined') {
-                        runner[action]();
-                    } else {
-                        runner[action](payload);
-                    }
-                });
-            }
-
-            return fetchApi(action, payload);
+        function toDbGuest(guest) {
+            return {
+                id: String(guest.id || Date.now()),
+                name: guest.name || "",
+                phone: guest.phone || "",
+                relation: guest.relation || "",
+                invitation: guest.invitation || "已知資訊不需要喜帖",
+                invitation_email: guest.invitationEmail || "",
+                invitation_address: guest.invitationAddress || "",
+                attendance: guest.attendance || "yes",
+                count: Number(guest.count) || 0,
+                companion_names: guest.companionNames || "",
+                meals: Array.isArray(guest.meals) ? guest.meals : [],
+                baby_chairs: Number(guest.babyChairs) || 0,
+                self_drive: guest.selfDrive || "no",
+                car_plate: guest.carPlate || "",
+                wish: guest.wish || "",
+                table_id: guest.tableId || "",
+                checked_in: guest.checkedIn === true,
+                updated_at: new Date().toISOString()
+            };
         }
 
-        async function fetchApi(action, payload = {}) {
-            if (!ENABLE_GOOGLE_SHEET_SYNC) {
-                return { ok: false, error: "Google Sheet API 尚未設定" };
+        function fromDbGuest(row) {
+            return {
+                id: String(row.id),
+                name: row.name || "",
+                phone: row.phone || "",
+                relation: row.relation || "",
+                invitation: row.invitation || "已知資訊不需要喜帖",
+                invitationEmail: row.invitation_email || "",
+                invitationAddress: row.invitation_address || "",
+                attendance: row.attendance || "yes",
+                count: Number(row.count) || 0,
+                companionNames: row.companion_names || "",
+                meals: Array.isArray(row.meals) ? row.meals : [],
+                babyChairs: Number(row.baby_chairs) || 0,
+                selfDrive: row.self_drive || "no",
+                carPlate: row.car_plate || "",
+                wish: row.wish || "",
+                tableId: row.table_id || "",
+                checkedIn: row.checked_in === true
+            };
+        }
+
+        function toDbGuestFields(fields = {}) {
+            const keyMap = {
+                invitationEmail: "invitation_email",
+                invitationAddress: "invitation_address",
+                companionNames: "companion_names",
+                babyChairs: "baby_chairs",
+                selfDrive: "self_drive",
+                carPlate: "car_plate",
+                tableId: "table_id",
+                checkedIn: "checked_in"
+            };
+            const mapped = {};
+            Object.entries(fields).forEach(([key, value]) => {
+                mapped[keyMap[key] || key] = value;
+            });
+            mapped.updated_at = new Date().toISOString();
+            return mapped;
+        }
+
+        function fromDbGift(row) {
+            return {
+                id: String(row.id),
+                giver: row.giver || "",
+                amount: Number(row.amount) || 0,
+                note: row.note || ""
+            };
+        }
+
+        async function api(action, payload = {}) {
+            if (!supabaseClient) {
+                return { ok: false, error: "Supabase 尚未設定 Project URL / anon public key" };
             }
 
             try {
-                const body = { action };
-                if (action === 'createGuest') {
-                    body.guest = payload;
-                } else if (action === 'createGift') {
-                    body.gift = payload;
-                } else if (action === 'deleteGuest' || action === 'deleteGift') {
-                    body.id = payload;
-                } else if (action === 'updateGuest') {
-                    Object.assign(body, payload);
-                } else if (payload && typeof payload === 'object') {
-                    Object.assign(body, payload);
+                if (action === "createGuest") {
+                    const { data, error } = await supabaseClient
+                        .from("guests")
+                        .upsert(toDbGuest(payload), { onConflict: "phone" })
+                        .select()
+                        .single();
+                    if (error) throw error;
+                    return { ok: true, guest: fromDbGuest(data) };
                 }
 
-                const res = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(body)
-                });
-                return await res.json();
+                if (action === "listGuests") {
+                    const { data, error } = await supabaseClient
+                        .from("guests")
+                        .select("*")
+                        .is("deleted_at", null)
+                        .order("created_at", { ascending: true });
+                    if (error) throw error;
+                    return { ok: true, guests: (data || []).map(fromDbGuest) };
+                }
+
+                if (action === "updateGuest") {
+                    const { error } = await supabaseClient
+                        .from("guests")
+                        .update(toDbGuestFields(payload.fields || {}))
+                        .eq("id", payload.id);
+                    if (error) throw error;
+                    return { ok: true };
+                }
+
+                if (action === "deleteGuest") {
+                    const { error } = await supabaseClient
+                        .from("guests")
+                        .update({ deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+                        .eq("id", payload);
+                    if (error) throw error;
+                    return { ok: true };
+                }
+
+                if (action === "createGift") {
+                    const gift = {
+                        id: String(payload.id || `gift-${Date.now()}`),
+                        giver: payload.giver || "",
+                        amount: Number(payload.amount) || 0,
+                        note: payload.note || ""
+                    };
+                    const { error } = await supabaseClient.from("gifts").insert(gift);
+                    if (error) throw error;
+                    await supabaseClient
+                        .from("guests")
+                        .update({ checked_in: true, updated_at: new Date().toISOString() })
+                        .eq("name", gift.giver)
+                        .eq("attendance", "yes")
+                        .is("deleted_at", null);
+                    return { ok: true };
+                }
+
+                if (action === "listGifts") {
+                    const { data, error } = await supabaseClient
+                        .from("gifts")
+                        .select("*")
+                        .is("deleted_at", null)
+                        .order("created_at", { ascending: true });
+                    if (error) throw error;
+                    return { ok: true, gifts: (data || []).map(fromDbGift) };
+                }
+
+                if (action === "deleteGift") {
+                    const { error } = await supabaseClient
+                        .from("gifts")
+                        .update({ deleted_at: new Date().toISOString() })
+                        .eq("id", payload);
+                    if (error) throw error;
+                    return { ok: true };
+                }
+
+                if (action === "getSettings") {
+                    const { data, error } = await supabaseClient.from("settings").select("*");
+                    if (error) throw error;
+                    const settings = {};
+                    (data || []).forEach(row => {
+                        settings[row.key] = row.value;
+                    });
+                    return { ok: true, settings };
+                }
+
+                if (action === "saveSetting") {
+                    const { error } = await supabaseClient
+                        .from("settings")
+                        .upsert({
+                            key: payload.key,
+                            value: payload.value,
+                            updated_at: new Date().toISOString()
+                        }, { onConflict: "key" });
+                    if (error) throw error;
+                    return { ok: true };
+                }
+
+                return { ok: false, error: `未知的 Supabase action：${action}` };
             } catch (error) {
-                console.warn("Google Sheet 同步失敗，暫時使用本機資料。", error);
-                return { ok: false, error: error.message || String(error) };
+                const message = error.message || error.details || error.hint || String(error);
+                console.error("Supabase 同步失敗", {
+                    action,
+                    payload,
+                    message,
+                    error
+                });
+                return { ok: false, error: message };
             }
         }
 
         async function loadGuestsFromSheet() {
             const result = await api("listGuests");
             if (!result.ok || !Array.isArray(result.guests)) {
-                console.warn("讀取 Google Sheet 賓客資料失敗", result);
+                console.warn("讀取 Supabase 賓客資料失敗", result);
                 return false;
             }
 
@@ -981,7 +1121,7 @@
         async function loadGiftsFromSheet() {
             const result = await api("listGifts");
             if (!result.ok || !Array.isArray(result.gifts)) {
-                console.warn("讀取 Google Sheet 禮金資料失敗", result);
+                console.warn("讀取 Supabase 禮金資料失敗", result);
                 return false;
             }
 
@@ -998,7 +1138,7 @@
         async function loadSettingsFromSheet() {
             const result = await api("getSettings");
             if (!result.ok || !result.settings) {
-                console.warn("讀取 Google Sheet 設定失敗", result);
+                console.warn("讀取 Supabase 設定失敗", result);
                 return false;
             }
 
@@ -1097,7 +1237,7 @@
                 key: "welcomeMessage",
                 value: nextMessage
             });
-            showToast(result.ok ? "表單歡迎訊息已更新並同步。" : "表單歡迎訊息已先存在本機，Google Sheet 同步失敗。", result.ok ? "success" : "error");
+            showToast(result.ok ? "表單歡迎訊息已更新並同步。" : "表單歡迎訊息已先存在本機，Supabase 同步失敗。", result.ok ? "success" : "error");
         }
 
         function refreshAllViews() {
@@ -1118,16 +1258,10 @@
             toggleInvitationFields();
             toggleCompanionNamesField();
 
-            if (typeof google !== 'undefined' && google.script && google.script.url) {
-                google.script.url.getLocation(location => {
-                    initPageMode(location.parameter || {});
-                });
-            } else {
-                const urlParams = new URLSearchParams(window.location.search);
-                initPageMode({
-                    mode: urlParams.get('mode')
-                });
-            }
+            const urlParams = new URLSearchParams(window.location.search);
+            initPageMode({
+                mode: urlParams.get('mode')
+            });
         });
 
         function initPageMode(params) {
@@ -1457,11 +1591,11 @@
 
                 let statusBadge = '';
                 if (g.attendance === 'yes') {
-                    statusBadge = `<span class="px-2 py-0.5 bg-milktea-100 text-coffee-700 text-[10px] rounded-full">受邀出席</span>`;
+                    statusBadge = `<span class="px-2 py-0.5 bg-milktea-100 text-coffee-700 text-[10px] rounded-full">會出席</span>`;
                 } else if (g.attendance === 'gift-only') {
                     statusBadge = `<span class="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] rounded-full">禮到人不到</span>`;
                 } else {
-                    statusBadge = `<span class="px-2 py-0.5 bg-stone-100 text-stone-500 text-[10px] rounded-full">不克出席</span>`;
+                    statusBadge = `<span class="px-2 py-0.5 bg-stone-100 text-stone-500 text-[10px] rounded-full">可惜無法到場</span>`;
                 }
 
                 // 組合詳細餐點顯示文字
@@ -1477,7 +1611,8 @@
 
                         const drinkText = m.drinkSwap ? "[換果汁]" : "";
                         const allergyText = (m.allergies && m.allergies.length > 0) ? `(${m.allergies.join('/')})` : "";
-                        return `人${idx+1}: ${mainChinese}${drinkText}${allergyText}`;
+                        const mealGuestName = m.guestName || `賓客 ${idx + 1}`;
+                        return `${escapeHtml(mealGuestName)}: ${mainChinese}${drinkText}${allergyText}`;
                     }).join('<br>');
                 }
 
@@ -1503,7 +1638,7 @@
                     <td class="px-4 py-3 font-medium">
                         <div>${g.count} 人 / <span class="text-coffee-600 font-semibold">${tableName}</span></div>
                         <div class="text-[10px] text-stone-400 mt-0.5"><i class="fa-solid fa-car mr-1 text-coffee-300"></i>${transportText}</div>
-                        ${g.companionNames ? `<div class="text-[10px] text-stone-400 mt-0.5">名牌: ${escapeHtml(g.companionNames)}</div>` : ''}
+                        ${g.companionNames ? `<div class="text-[10px] text-stone-400 mt-0.5">同行賓客: ${escapeHtml(g.companionNames)}</div>` : ''}
                     </td>
                     <td class="px-4 py-3 text-stone-600 leading-relaxed">${mealDetailsText}</td>
                     <td class="px-4 py-3">
@@ -1540,6 +1675,7 @@
                 detailsGroup.classList.remove('hidden');
             } else {
                 detailsGroup.classList.add('hidden');
+                document.getElementById('companion-names').required = false;
             }
         }
 
@@ -1577,11 +1713,17 @@
             toggleCompanionNamesField();
         }
 
+        function syncPrimaryMealGuestName() {
+            const primaryMealName = document.getElementById('meal-guest-name-1');
+            if (primaryMealName) {
+                primaryMealName.value = document.getElementById('guest-name').value.trim();
+            }
+        }
+
         function toggleCompanionNamesField() {
-            const count = parseInt(document.getElementById('guest-count').value, 10) || 1;
             const wrapper = document.getElementById('companion-names-wrapper');
             const input = document.getElementById('companion-names');
-            const shouldShow = count > 2;
+            const shouldShow = false;
 
             wrapper.classList.toggle('hidden', !shouldShow);
             input.required = shouldShow;
@@ -1606,6 +1748,7 @@
         function generateMealInputs() {
             const count = parseInt(document.getElementById('guest-count').value) || 1;
             const container = document.getElementById('meal-inputs-container');
+            const primaryName = document.getElementById('guest-name')?.value.trim() || '';
             container.innerHTML = '';
 
             for (let i = 1; i <= count; i++) {
@@ -1616,7 +1759,13 @@
                         <span class="text-xs font-bold text-coffee-700 bg-milktea-50 px-2 py-0.5 rounded-full"><i class="fa-solid fa-user mr-1"></i> 賓客 ${i} 需求</span>
                     </div>
 
-                    <!-- 1. 主餐選擇 -->
+                    <!-- 1. 賓客姓名與主餐選擇 -->
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-600 mb-1" for="meal-guest-name-${i}">賓客 ${i} 姓名 <span class="text-coffee-500">*</span></label>
+                        <input type="text" id="meal-guest-name-${i}" ${i === 1 ? 'readonly' : 'required'} value="${i === 1 ? escapeHtml(primaryName) : ''}" class="w-full px-3 py-2 sm:py-1.5 border border-milktea-200 rounded-lg text-xs focus:ring-1 focus:ring-coffee-500 outline-none bg-white ${i === 1 ? 'text-stone-400 bg-stone-50' : ''}" placeholder="${i === 1 ? '會自動帶入上方主要賓客姓名' : '請填寫這位同行賓客姓名'}">
+                        ${i === 1 ? '<p class="text-[11px] text-stone-400 mt-1">第 1 位會使用上方「主要賓客姓名」。</p>' : ''}
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-stone-600 mb-1" for="main-course-${i}">選擇主餐 <span class="text-coffee-500">*</span></label>
@@ -1669,7 +1818,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-stone-600 mb-1">餐前酒調整</label>
                         <label class="flex items-center min-h-10 px-3 py-2 bg-stone-50 rounded-lg text-xs text-stone-700 cursor-pointer mt-1">
-                            <input type="checkbox" id="drink-swap-${i}" class="mr-2 rounded text-coffee-500 focus:ring-coffee-400"> 餐前酒更換為健康果汁
+                            <input type="checkbox" id="drink-swap-${i}" class="mr-2 rounded text-coffee-500 focus:ring-coffee-400"> 餐前酒更換為果汁
                         </label>
                     </div>
                 `;
@@ -1729,15 +1878,23 @@
                 babyChairs = parseInt(document.getElementById('baby-chair-count').value);
                 selfDrive = document.querySelector('input[name="self-drive"]:checked').value;
                 carPlate = document.getElementById('car-plate').value.trim();
-                companionNames = document.getElementById('companion-names').value.trim();
-
-                if (count > 2 && !companionNames) {
-                    showToast("超過兩位賓客時，請填寫其他賓客姓名，以利製作名牌。", "error");
-                    document.getElementById('companion-names').focus();
-                    return;
-                }
+                const mealGuestNames = [];
 
                 for (let i = 1; i <= count; i++) {
+                    const mealGuestName = i === 1
+                        ? name
+                        : document.getElementById(`meal-guest-name-${i}`).value.trim();
+
+                    if (!mealGuestName) {
+                        showToast(`請填寫賓客 ${i} 姓名，以利我們通知餐廳每位賓客的餐點。`, "error");
+                        document.getElementById(`meal-guest-name-${i}`).focus();
+                        btn.disabled = false;
+                        btnText.textContent = originalText;
+                        btnIcon.className = 'fa-solid fa-heart-circle-check';
+                        return;
+                    }
+                    mealGuestNames.push(mealGuestName);
+
                     const mainCourse = document.getElementById(`main-course-${i}`).value;
                     const doneness = document.getElementById(`doneness-${i}`).value;
                     const drinkSwap = document.getElementById(`drink-swap-${i}`).checked;
@@ -1755,14 +1912,14 @@
                     }
 
                     meals.push({
+                        guestName: mealGuestName,
                         main: mainCourse,
                         doneness: doneness,
                         drinkSwap: drinkSwap,
                         allergies: allergies
                     });
                 }
-            } else if (attendance === 'gift-only') {
-                count = 0;
+                companionNames = mealGuestNames.slice(1).join('、');
             }
 
             // 在建立 newGuest 之前
@@ -1796,15 +1953,25 @@
 
             // --- 發送 API ---
             const result = await api('createGuest', newGuest);
-            guests.push(newGuest);
-            saveState();
 
             if (result.ok) {
-                  await loadGuestsFromSheet();
-                  showToast(`成功！感謝 ${name} 的回覆與登記`, 'success');
-              } else {
-                  showToast(`同步失敗，請稍後檢查設定`, 'error');
-              }
+                if (result.guest) {
+                    guests = guests.filter(g => g.id !== result.guest.id && g.phone !== result.guest.phone);
+                    guests.push(result.guest);
+                } else {
+                    guests.push(newGuest);
+                }
+                saveState();
+                await loadGuestsFromSheet();
+                showToast(`成功！感謝 ${name} 的回覆與登記`, 'success');
+            } else {
+                console.error("賓客資料寫入 Supabase 失敗", result);
+                showToast(`同步失敗：${result.error || "請檢查 Supabase 設定"}`, 'error');
+                btn.disabled = false;
+                btnText.textContent = originalText;
+                btnIcon.className = 'fa-solid fa-heart-circle-check';
+                return;
+            }
 
             // 重置表單
             document.getElementById('rsvp-form').reset();
@@ -1838,7 +2005,7 @@
                     gifts = gifts.filter(g => g.giver !== deletedGuest.name);
                 }
                 saveState();
-                showToast(result.ok ? "成功刪除該筆賓客紀錄，並已同步 Google Sheet" : "已先從本機刪除；Google Sheet 同步失敗，請稍後檢查 Apps Script", result.ok ? "success" : "error");
+                showToast(result.ok ? "成功刪除該筆賓客紀錄，並已同步 Supabase" : "已先從本機刪除；Supabase 同步失敗，請稍後檢查設定", result.ok ? "success" : "error");
                 refreshAllViews();
             }
         }
@@ -2366,7 +2533,7 @@
             } else {
                 gifts.push(newGift);
                 saveState();
-                showToast(`禮金已先暫存在本機；Google Sheet 同步失敗，請檢查 createGift 後端函式`, 'error');
+                showToast(`禮金已先暫存在本機；Supabase 同步失敗，請檢查資料庫設定`, 'error');
             }
             
             document.getElementById('gift-form').reset();
@@ -2415,7 +2582,7 @@
                 const result = await api('deleteGift', id);
                 gifts = gifts.filter(g => g.id !== id);
                 saveState();
-                showToast(result.ok ? "禮金帳目已成功刪除並同步！" : "已先從本機刪除；Google Sheet 同步失敗", result.ok ? "success" : "error");
+                showToast(result.ok ? "禮金帳目已成功刪除並同步！" : "已先從本機刪除；Supabase 同步失敗", result.ok ? "success" : "error");
                 renderGiftLedger();
                 updateDashboard();
             }
