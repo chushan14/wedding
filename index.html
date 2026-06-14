@@ -162,15 +162,16 @@
 
     <!-- 封面 Hero Section -->
     <header class="hero-gradient h-[250px] sm:h-[350px] flex flex-col justify-center items-center text-center text-white px-4">
-        <h2 class="font-serif text-3xl sm:text-5xl font-bold tracking-widest mb-2 drop-shadow-md">盧永翰＆曹竹宣 婚禮</h2>
+        <h3 class="font-serif text-3xl sm:text-5xl font-bold tracking-widest mb-2 drop-shadow-md">盧永翰＆曹竹宣 婚禮邀請</h3>
         <p class="text-sm sm:text-lg tracking-wider text-milktea-100 font-light mb-4 drop-shadow-sm">我們決定攜手走入人生新階段,期待能與您分享這份喜悅🤵👰</p>
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-2 max-w-full text-xs sm:text-sm text-milktea-50">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-2 max-w-full text-xs sm:text-sm text-milktea-50">
             <div class="bg-white/10 backdrop-blur-md px-4 sm:px-5 py-2 rounded-full border border-white/20 leading-relaxed">
                 <i class="fa-regular fa-calendar-check mr-2"></i>2027.03.07 11:30 AM 入席 ｜ 12:00 PM 開席
             </div>
             <div class="bg-white/10 backdrop-blur-md px-4 sm:px-5 py-2 rounded-full border border-white/20 leading-relaxed">
                 <i class="fa-solid fa-location-dot mr-2"></i>台北勞瑞斯牛肋排餐廳 Lawry's Taipei
             </div>
+        </div>
     </header>
 
     <!-- ==================== 鎖定畫面 / 密碼登入 (Admin Login Screen) ==================== -->
@@ -201,8 +202,8 @@
     <!-- 賓客專用頂部引導 (僅在賓客模式下顯示) -->
     <div id="guest-header-hint" class="max-w-2xl mx-auto px-4 mt-8 hidden">
         <div class="bg-milktea-50 border border-milktea-200 p-4 rounded-xl text-center space-y-1">
-            <p class="text-xs font-semibold text-coffee-600">親愛的賓客您好</p>
-            <p class="text-[11px] text-stone-500">此頁面為 12 hours closer 專屬回覆系統，請填寫您的出席與餐點意願。</p>
+            <p id="guest-header-title" class="text-xs font-semibold text-coffee-600">親愛的賓客您好</p>
+            <p id="guest-header-desc" class="text-[11px] text-stone-500">此頁面為 12 hours closer 專屬回覆系統，請填寫您的出席與餐點意願。</p>
         </div>
     </div>
 
@@ -222,9 +223,12 @@
                 <div class="text-xs text-stone-500">
                     <span class="font-bold text-coffee-700"><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i>系統狀態：</span> 已解鎖管理權限，您可以分享專屬連結給賓客。
                 </div>
-                <div class="flex space-x-2 w-full sm:w-auto">
+                <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <button onclick="copyGuestLink()" class="flex-1 sm:flex-none bg-milktea-100 hover:bg-milktea-200 text-coffee-700 text-xs font-semibold py-2 px-4 rounded-lg transition-all border border-milktea-200 flex items-center justify-center">
                         <i class="fa-solid fa-share-nodes mr-1.5"></i> 複製賓客專屬 RSVP 連結
+                    </button>
+                    <button onclick="copyParkingLink()" class="flex-1 sm:flex-none bg-milktea-100 hover:bg-milktea-200 text-coffee-700 text-xs font-semibold py-2 px-4 rounded-lg transition-all border border-milktea-200 flex items-center justify-center">
+                        <i class="fa-solid fa-square-parking mr-1.5"></i> 複製車位折抵自助連結
                     </button>
                 </div>
             </div>
@@ -574,7 +578,7 @@
         <section id="tab-gift" class="tab-content hidden space-y-6">
             <div class="flex flex-col lg:flex-row gap-6">
                 <!-- 左側：新增禮金登記 -->
-                <div class="w-full lg:w-1/3 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100">
+                <div id="parking-self-card" class="w-full lg:w-1/3 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100">
                     <h3 class="text-lg font-bold text-stone-800 mb-4"><i class="fa-solid fa-file-invoice-dollar text-coffee-500 mr-2"></i>現場禮金登記</h3>
                     <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-xl mb-4 text-xs text-emerald-800">
                         <i class="fa-solid fa-circle-info mr-1"></i> 提示：在此登錄禮金時，系統將**自動完成賓客當日出席簽到**！
@@ -616,7 +620,7 @@
                 </div>
 
                 <!-- 右側：禮金明細、搜尋與統計 -->
-                <div class="w-full lg:w-2/3 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col h-[550px]">
+                <div id="parking-admin-list" class="w-full lg:w-2/3 bg-white p-6 rounded-2xl shadow-sm border border-milktea-100 flex flex-col h-[550px]">
                     <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
                         <div>
                             <h3 class="text-lg font-bold text-stone-800"><i class="fa-solid fa-list-check text-stone-700 mr-2"></i>禮金登記帳目簿</h3>
@@ -1268,6 +1272,7 @@
             currentMode = params.mode || "admin";
             const isGuestMode = currentMode === 'guest';
             const isSeatingMode = currentMode === 'seating';
+            const isParkingMode = currentMode === 'parking';
 
             if (isSeatingMode) {
                 // 座位配置模式 (供親友或餐廳工作人員唯讀查看)
@@ -1301,6 +1306,8 @@
                 document.getElementById('admin-navbar').classList.add('hidden');
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('guest-header-hint').classList.remove('hidden');
+                document.getElementById('guest-header-title').innerText = "親愛的賓客您好";
+                document.getElementById('guest-header-desc').innerText = "此頁面為 12 hours closer 專屬回覆系統，請填寫您的出席與餐點意願。";
                 document.getElementById('guest-footer').classList.remove('hidden');
                 
                 // 只開啟 RSVP 分頁，其他介面全部不可見
@@ -1310,6 +1317,21 @@
                 document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.add('hidden'));
                 document.getElementById('btn-rsvp').classList.remove('hidden');
                 document.getElementById('btn-rsvp').classList.add('pointer-events-none');
+            } else if (isParkingMode) {
+                // 車牌折抵自助模式：提供賓客自行填寫車牌，不顯示後台清單
+                document.getElementById('admin-navbar').classList.add('hidden');
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('guest-header-hint').classList.remove('hidden');
+                document.getElementById('guest-header-title').innerText = "車位折抵自助登記";
+                document.getElementById('guest-header-desc').innerText = "開車前來的親友，請填寫姓名與完整車牌號碼，我們將協助統一折抵。";
+                document.getElementById('guest-footer').classList.remove('hidden');
+
+                document.getElementById('main-container').classList.remove('hidden');
+                switchTab('parking');
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.add('hidden'));
+                document.getElementById('parking-admin-list').classList.add('hidden');
+                document.getElementById('parking-self-card').classList.remove('lg:w-1/3');
+                document.getElementById('parking-self-card').classList.add('max-w-xl', 'mx-auto');
             } else {
                 // 管理員模式：需要輸入密碼
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -1407,6 +1429,18 @@
             }
         }
 
+        // 複製車牌折抵自助填寫連結
+        async function copyParkingLink() {
+            const cleanUrl = buildShareUrl('parking');
+            try {
+                await copyTextToClipboard(cleanUrl);
+                showToast("車位折抵自助填寫連結已複製！可提供給開車親友。", "success");
+            } catch (error) {
+                console.warn("複製連結失敗", error);
+                prompt("自動複製失敗，請手動複製以下連結：", cleanUrl);
+            }
+        }
+
         // ------------------ 分頁切換 ------------------
         async function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -1450,6 +1484,9 @@
                 }
                 renderGiftLedger();
             } else if (tabName === 'parking') {
+                if (isAdminLoggedIn || currentMode === 'parking') {
+                    await loadGuestsFromSheet();
+                }
                 renderParkingLedger();
             }
         }
@@ -2645,7 +2682,7 @@
             });
         }
 
-        function handleParkingSelfSubmit(e) {
+        async function handleParkingSelfSubmit(e) {
             e.preventDefault();
             const name = document.getElementById('parking-guest-name').value.trim();
             const plate = document.getElementById('parking-plate').value.trim().toUpperCase();
@@ -2655,16 +2692,28 @@
             if (guest) {
                 guest.selfDrive = "yes";
                 guest.carPlate = plate;
+                const result = await syncGuestFields(guest.id, {
+                    selfDrive: "yes",
+                    carPlate: plate
+                });
+                if (!result) {
+                    showToast(`車牌已先暫存在本機；Supabase 同步失敗，請稍後再試。`, 'error');
+                    return;
+                }
                 showToast(`已成功為 ${name} 更新車牌：${plate}`, 'success');
             } else {
                 const newGuest = {
                     id: Date.now().toString(),
                     name: name,
-                    phone: "",
+                    phone: `parking-${Date.now()}`,
                     relation: "現場臨時登記",
+                    invitation: "已知資訊不需要喜帖",
+                    invitationEmail: "",
+                    invitationAddress: "",
                     attendance: "yes",
                     count: 1,
-                    meals: [{ main: "ribeye", doneness: "5分熟", drinkSwap: false, allergies: [] }],
+                    companionNames: "",
+                    meals: [],
                     babyChairs: 0,
                     selfDrive: "yes",
                     carPlate: plate,
@@ -2672,11 +2721,17 @@
                     tableId: "",
                     checkedIn: true // 現場登記直接標記已簽到
                 };
-                guests.push(newGuest);
+                const result = await api('createGuest', newGuest);
+                if (!result.ok) {
+                    showToast(`車牌登記失敗：${result.error || "請檢查 Supabase 設定"}`, 'error');
+                    return;
+                }
+                guests.push(result.guest || newGuest);
                 showToast(`已為您（現場親友：${name}）建立折抵並綁定車牌：${plate}`, 'success');
             }
 
             saveState();
+            await loadGuestsFromSheet();
 
             document.getElementById('parking-self-form').reset();
             document.getElementById('parking-guest-suggestions').classList.add('hidden');
@@ -2721,14 +2776,19 @@
             });
         }
 
-        function deleteParkingItem(guestId) {
+        async function deleteParkingItem(guestId) {
             const guest = guests.find(g => g.id === guestId);
             if (guest) {
                 if (confirm(`確定要移除 ${guest.name} 的車牌登記嗎？`)) {
                     guest.selfDrive = "no";
                     guest.carPlate = "";
+                    const result = await syncGuestFields(guest.id, {
+                        selfDrive: "no",
+                        carPlate: ""
+                    });
                     saveState();
-                    showToast("已成功移除該車牌折抵登記！", "success");
+                    showToast(result ? "已成功移除該車牌折抵登記！" : "已先從本機移除；Supabase 同步失敗", result ? "success" : "error");
+                    await loadGuestsFromSheet();
                     renderParkingLedger();
                     updateDashboard();
                 }
