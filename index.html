@@ -219,8 +219,6 @@
         </div>
     </section>
 
-    <!-- 賓客專用頂部引導 (僅在賓客模式下顯示) -->
-
     <!-- 主體內容區 -->
     <main id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden">
         
@@ -377,14 +375,14 @@
             <div class="max-w-2xl mx-auto bg-white rounded-xl sm:rounded-2xl shadow-md border border-milktea-100 overflow-hidden">
                 <div class="milktea-gradient p-5 sm:p-8 text-center border-b border-milktea-200">
                     <span class="text-coffee-600 text-xs uppercase tracking-widest font-semibold block mb-2">RSVP FORM</span>
-                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-coffee-800">盧永翰＆曹竹宣 婚禮邀請</h2>
+                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-coffee-800">出席意願與餐點統計表</h2>
                     <div class="mt-5 mx-auto max-w-xl rounded-xl border border-white/70 bg-white/45 px-4 py-4 sm:px-6 text-left shadow-sm">
                         <p class="font-semibold text-coffee-800 text-sm mb-2">親愛的家人與朋友們：</p>
                         <div class="space-y-2 text-xs sm:text-sm leading-6 sm:leading-7 text-coffee-700">
                             <p>在人生的旅程中，我們很幸運遇見彼此，也很幸運一路上有您的陪伴。</p>
                             <p>如今，我們決定攜手走向下一段旅程，誠摯邀請您見證這個重要的時刻。</p>
                             <p>為了幫大家準備好座位與餐點，請花幾分鐘填寫以下表單。</p>
-                            <p>期待婚禮當天與您一起留下美好的回憶！</p>
+                            <p class="font-medium text-coffee-800">期待婚禮當天與您一起留下美好的回憶！</p>
                         </div>
                     </div>
                     <div class="mt-4 mx-auto max-w-xl grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
@@ -1362,7 +1360,6 @@
                 // 座位配置模式 (供親友或餐廳工作人員唯讀查看)
                 document.getElementById('admin-navbar').classList.add('hidden');
                 document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('guest-header-hint').classList.add('hidden');
                 document.getElementById('guest-footer').classList.remove('hidden');
                 
                 // 開啟座位配置並隱藏其他非必要視圖
@@ -1389,9 +1386,6 @@
                 // 賓客模式：直接強制進入出席表單，且隱藏所有後台資訊
                 document.getElementById('admin-navbar').classList.add('hidden');
                 document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('guest-header-hint').classList.remove('hidden');
-                document.getElementById('guest-header-title').innerText = "親愛的賓客您好";
-                document.getElementById('guest-header-desc').innerText = "此頁面為 12 hours closer 專屬回覆系統，請填寫您的出席與餐點意願。";
                 document.getElementById('guest-footer').classList.remove('hidden');
                 
                 // 只開啟 RSVP 分頁，其他介面全部不可見
@@ -1405,9 +1399,6 @@
                 // 車牌折抵自助模式：提供賓客自行填寫車牌，不顯示後台清單
                 document.getElementById('admin-navbar').classList.add('hidden');
                 document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('guest-header-hint').classList.remove('hidden');
-                document.getElementById('guest-header-title').innerText = "車位折抵自助登記";
-                document.getElementById('guest-header-desc').innerText = "開車前來的親友，請填寫姓名與完整車牌號碼，我們將協助統一折抵。";
                 document.getElementById('guest-footer').classList.remove('hidden');
 
                 document.getElementById('main-container').classList.remove('hidden');
