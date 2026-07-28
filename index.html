@@ -242,6 +242,12 @@
                     <button onclick="copyParkingLink()" class="flex-1 sm:flex-none bg-milktea-100 hover:bg-milktea-200 text-coffee-700 text-xs font-semibold py-2 px-4 rounded-lg transition-all border border-milktea-200 flex items-center justify-center">
                         <i class="fa-solid fa-square-parking mr-1.5"></i> 複製車位折抵自助連結
                     </button>
+                    <button onclick="copyCheckinLink()" class="flex-1 sm:flex-none bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold py-2 px-4 rounded-lg transition-all border border-emerald-200 flex items-center justify-center">
+                        <i class="fa-solid fa-clipboard-check mr-1.5"></i> 複製自助報到連結
+                    </button>
+                    <button onclick="copyCoordinatorLink()" class="flex-1 sm:flex-none bg-coffee-600 hover:bg-coffee-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition-all flex items-center justify-center">
+                        <i class="fa-solid fa-user-tie mr-1.5"></i> 複製總招名單連結
+                    </button>
                 </div>
             </div>
 
@@ -784,6 +790,61 @@
             </div>
         </section>
 
+        <!-- ==================== 婚禮當日自助報到 ==================== -->
+        <section id="tab-checkin" class="tab-content hidden">
+            <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-md border border-milktea-100 overflow-hidden">
+                <div class="milktea-gradient p-6 sm:p-8 text-center border-b border-milktea-200">
+                    <span class="text-coffee-600 text-xs uppercase tracking-widest font-semibold block mb-2">WEDDING DAY CHECK-IN</span>
+                    <h2 class="font-serif text-2xl font-bold text-coffee-800">婚禮當日自助報到</h2>
+                    <p class="text-sm text-coffee-600 mt-3">請輸入登記時的姓名與電話，完成您與同行賓客的報到。</p>
+                </div>
+                <form onsubmit="handleSelfCheckin(event)" class="p-6 sm:p-8 space-y-5">
+                    <div>
+                        <label for="checkin-name" class="block text-sm font-medium text-stone-600 mb-1">主要賓客姓名</label>
+                        <input id="checkin-name" required autocomplete="name" class="w-full px-4 py-3 border border-milktea-200 rounded-lg outline-none focus:ring-2 focus:ring-coffee-500" placeholder="請輸入登記姓名">
+                    </div>
+                    <div>
+                        <label for="checkin-phone" class="block text-sm font-medium text-stone-600 mb-1">聯絡電話末五碼或完整電話</label>
+                        <input id="checkin-phone" required inputmode="numeric" autocomplete="tel" class="w-full px-4 py-3 border border-milktea-200 rounded-lg outline-none focus:ring-2 focus:ring-coffee-500" placeholder="例如：29375 或 0920929375">
+                    </div>
+                    <button id="self-checkin-btn" type="submit" class="w-full bg-coffee-600 hover:bg-coffee-700 text-white font-medium py-3 px-4 rounded-lg shadow-md transition-all">
+                        <i class="fa-solid fa-circle-check mr-2"></i>確認報到
+                    </button>
+                    <div id="self-checkin-result" class="hidden rounded-xl p-4 text-sm" role="status" aria-live="polite"></div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==================== 總招專用當日名單 ==================== -->
+        <section id="tab-coordinator" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-milktea-100 p-5 sm:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <span class="text-coffee-600 text-xs uppercase tracking-widest font-semibold">COORDINATOR VIEW</span>
+                        <h2 class="text-xl font-bold text-coffee-800 mt-1"><i class="fa-solid fa-user-tie text-coffee-500 mr-2"></i>總招當日報到名單</h2>
+                        <p class="text-xs text-stone-400 mt-1">顯示已回覆出席的賓客、到場狀態、電話、座位與餐點。</p>
+                    </div>
+                    <button onclick="refreshCoordinatorView()" class="bg-milktea-100 hover:bg-milktea-200 text-coffee-700 text-xs font-semibold py-2 px-4 rounded-lg border border-milktea-200">
+                        <i class="fa-solid fa-rotate-right mr-1.5"></i>重新整理名單
+                    </button>
+                </div>
+                <div id="coordinator-stats" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-5"></div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border border-milktea-100 p-5 sm:p-6">
+                <div class="relative mb-4">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-stone-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
+                    <input id="coordinator-search" oninput="renderCoordinatorView()" class="w-full pl-8 pr-3 py-2 text-sm border border-milktea-200 rounded-lg outline-none focus:ring-1 focus:ring-coffee-500" placeholder="搜尋姓名、電話、桌號或餐點">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-stone-100 text-sm text-left">
+                        <thead class="bg-milktea-50 text-coffee-700 text-xs uppercase">
+                            <tr><th class="px-4 py-3">到場</th><th class="px-4 py-3">賓客姓名</th><th class="px-4 py-3">聯絡電話</th><th class="px-4 py-3">座位</th><th class="px-4 py-3">餐點</th></tr>
+                        </thead>
+                        <tbody id="coordinator-table" class="divide-y divide-stone-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- ==================== 彈出視窗：單桌詳細名單與座位指派編輯 ==================== -->
@@ -1357,6 +1418,8 @@
             const isGuestMode = currentMode === 'guest';
             const isSeatingMode = currentMode === 'seating';
             const isParkingMode = currentMode === 'parking';
+            const isCheckinMode = currentMode === 'checkin';
+            const isCoordinatorMode = currentMode === 'coordinator';
 
             if (isSeatingMode) {
                 // 座位配置模式 (供親友或餐廳工作人員唯讀查看)
@@ -1409,6 +1472,20 @@
                 document.getElementById('parking-admin-list').classList.add('hidden');
                 document.getElementById('parking-self-card').classList.remove('lg:w-1/3');
                 document.getElementById('parking-self-card').classList.add('max-w-xl', 'mx-auto');
+            } else if (isCheckinMode) {
+                document.getElementById('admin-navbar').classList.add('hidden');
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('guest-footer').classList.remove('hidden');
+                document.getElementById('main-container').classList.remove('hidden');
+                switchTab('checkin');
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.add('hidden'));
+            } else if (isCoordinatorMode) {
+                document.getElementById('admin-navbar').classList.add('hidden');
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-container').classList.remove('hidden');
+                switchTab('coordinator');
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.add('hidden'));
+                setInterval(refreshCoordinatorView, 30000);
             } else {
                 // 管理員模式：需要輸入密碼
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -1518,6 +1595,26 @@
             }
         }
 
+        async function copyCheckinLink() {
+            const cleanUrl = buildShareUrl('checkin');
+            try {
+                await copyTextToClipboard(cleanUrl);
+                showToast("婚禮當日自助報到連結已複製！", "success");
+            } catch (error) {
+                prompt("自動複製失敗，請手動複製以下連結：", cleanUrl);
+            }
+        }
+
+        async function copyCoordinatorLink() {
+            const cleanUrl = buildShareUrl('coordinator');
+            try {
+                await copyTextToClipboard(cleanUrl);
+                showToast("總招專用名單連結已複製，請僅提供給總招。", "success");
+            } catch (error) {
+                prompt("自動複製失敗，請手動複製以下連結：", cleanUrl);
+            }
+        }
+
         // ------------------ 分頁切換 ------------------
         async function switchTab(tabName) {
             const weddingHero = document.getElementById('wedding-hero');
@@ -1568,6 +1665,8 @@
                     await loadGuestsFromSheet();
                 }
                 renderParkingLedger();
+            } else if (tabName === 'coordinator') {
+                await refreshCoordinatorView();
             }
         }
 
@@ -1607,6 +1706,116 @@
                 input.value = '';
                 input.required = false;
             }
+        }
+
+        function normalizePhone(value) {
+            return String(value || '').replace(/\D/g, '');
+        }
+
+        function getGuestTableLabel(guest) {
+            const tableIds = [...new Set([
+                guest.tableId,
+                ...(Array.isArray(guest.meals) ? guest.meals.map(meal => meal.tableId) : [])
+            ].filter(Boolean))];
+            const names = tableIds.map(id => tables.find(table => table.id === id)?.name || id);
+            return names.length ? names.join('、') : '未排座';
+        }
+
+        function getGuestMealLabel(guest) {
+            if (!Array.isArray(guest.meals) || !guest.meals.length) return '餐點待確認';
+            const names = { ribeye: '牛肋排', lamb: '小羔羊排', seafood: '海鮮拼盤', veg: '素食套餐', kid: '兒童餐' };
+            return guest.meals.map((meal, index) => {
+                const guestName = meal.guestName || (index === 0 ? guest.name : `同行賓客 ${index + 1}`);
+                const main = names[meal.main] || '餐點待確認';
+                const doneness = meal.doneness ? `（${meal.doneness}）` : '';
+                const allergy = Array.isArray(meal.allergies) && meal.allergies.length ? `；${meal.allergies.join('、')}` : '';
+                const drink = meal.drinkSwap ? '；換果汁' : '';
+                return `${guestName}：${main}${doneness}${drink}${allergy}`;
+            }).join(' / ');
+        }
+
+        async function handleSelfCheckin(event) {
+            event.preventDefault();
+            const name = document.getElementById('checkin-name').value.trim();
+            const phoneInput = normalizePhone(document.getElementById('checkin-phone').value);
+            const resultBox = document.getElementById('self-checkin-result');
+            const button = document.getElementById('self-checkin-btn');
+            resultBox.classList.add('hidden');
+            button.disabled = true;
+            button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>核對資料中…';
+
+            const loaded = await loadGuestsFromSheet();
+            const matched = loaded && guests.find(guest => {
+                const storedPhone = normalizePhone(guest.phone);
+                return guest.attendance === 'yes'
+                    && guest.name === name
+                    && storedPhone
+                    && (storedPhone === phoneInput || storedPhone.endsWith(phoneInput));
+            });
+
+            resultBox.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-100', 'bg-rose-50', 'text-rose-800', 'border-rose-100');
+            if (!matched) {
+                resultBox.classList.add('bg-rose-50', 'text-rose-800', 'border', 'border-rose-100');
+                resultBox.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i>找不到相符的出席登記。請確認姓名與電話；若仍無法報到，請洽現場服務人員。';
+            } else if (matched.checkedIn) {
+                resultBox.classList.add('bg-emerald-50', 'text-emerald-800', 'border', 'border-emerald-100');
+                resultBox.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i>${escapeHtml(matched.name)} 已完成報到。座位：${escapeHtml(getGuestTableLabel(matched))}。`;
+            } else {
+                const sync = await api('updateGuest', { id: matched.id, fields: { checkedIn: true } });
+                if (sync.ok) {
+                    matched.checkedIn = true;
+                    saveState();
+                    resultBox.classList.add('bg-emerald-50', 'text-emerald-800', 'border', 'border-emerald-100');
+                    resultBox.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i>報到成功！${escapeHtml(matched.name)}${matched.count > 1 ? ` 與 ${matched.count - 1} 位同行賓客` : ''}，座位：${escapeHtml(getGuestTableLabel(matched))}。`;
+                } else {
+                    resultBox.classList.add('bg-rose-50', 'text-rose-800', 'border', 'border-rose-100');
+                    resultBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i>報到同步失敗，請洽現場服務人員。';
+                }
+            }
+            button.disabled = false;
+            button.innerHTML = '<i class="fa-solid fa-circle-check mr-2"></i>確認報到';
+        }
+
+        async function refreshCoordinatorView() {
+            await loadSettingsFromSheet();
+            const loaded = await loadGuestsFromSheet();
+            if (!loaded) {
+                const table = document.getElementById('coordinator-table');
+                if (table) table.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-rose-500">讀取名單失敗，請稍後重新整理。</td></tr>';
+                return;
+            }
+            renderCoordinatorView();
+        }
+
+        function renderCoordinatorView() {
+            const tableBody = document.getElementById('coordinator-table');
+            const stats = document.getElementById('coordinator-stats');
+            if (!tableBody || !stats) return;
+            const attending = guests.filter(guest => guest.attendance === 'yes');
+            const guestCount = attending.reduce((sum, guest) => sum + Number(guest.count || 0), 0);
+            const checkedInCount = attending.filter(guest => guest.checkedIn).reduce((sum, guest) => sum + Number(guest.count || 0), 0);
+            const pendingCount = guestCount - checkedInCount;
+            stats.innerHTML = [
+                ['預計出席', `${guestCount} 人`, 'fa-users'],
+                ['已報到', `${checkedInCount} 人`, 'fa-circle-check'],
+                ['未到場', `${pendingCount} 人`, 'fa-clock']
+            ].map(([label, value, icon]) => `<div class="bg-stone-50 rounded-xl p-3"><p class="text-[11px] text-stone-400"><i class="fa-solid ${icon} mr-1"></i>${label}</p><p class="text-lg font-bold text-coffee-800 mt-1">${value}</p></div>`).join('');
+
+            const query = (document.getElementById('coordinator-search')?.value || '').toLowerCase().trim();
+            const rows = attending.filter(guest => {
+                const lookup = [guest.name, guest.phone, getGuestTableLabel(guest), getGuestMealLabel(guest)].join(' ').toLowerCase();
+                return !query || lookup.includes(query);
+            }).sort((a, b) => Number(a.checkedIn) - Number(b.checkedIn) || a.name.localeCompare(b.name, 'zh-Hant'));
+            tableBody.innerHTML = rows.length ? rows.map(guest => {
+                const present = guest.checkedIn;
+                return `<tr class="text-xs ${present ? 'bg-emerald-50/30' : ''}">
+                    <td class="px-4 py-3"><span class="inline-flex items-center px-2 py-1 rounded-full ${present ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-500'}"><i class="fa-solid ${present ? 'fa-circle-check' : 'fa-clock'} mr-1"></i>${present ? '已到場' : '未到場'}</span></td>
+                    <td class="px-4 py-3 font-semibold text-stone-700">${escapeHtml(guest.name)}${guest.count > 1 ? `<span class="text-stone-400 font-normal ml-1">(${guest.count} 人)</span>` : ''}</td>
+                    <td class="px-4 py-3 text-stone-600 font-mono">${escapeHtml(guest.phone || '-')}</td>
+                    <td class="px-4 py-3 text-coffee-700">${escapeHtml(getGuestTableLabel(guest))}</td>
+                    <td class="px-4 py-3 text-stone-600 leading-relaxed">${escapeHtml(getGuestMealLabel(guest))}</td>
+                </tr>`;
+            }).join('') : '<tr><td colspan="5" class="px-4 py-8 text-center text-stone-400">沒有符合的出席賓客。</td></tr>';
         }
 
         // ------------------ 當日手動報到勾選變更 ------------------
